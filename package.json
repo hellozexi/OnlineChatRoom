@@ -1,0 +1,19 @@
+{
+  "name": "fall2018-module6-group-467138-467319",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://liuzexi@bitbucket.org/cse330/fall2018-module6-group-467138-467319.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/cse330/fall2018-module6-group-467138-467319#readme",
+  "dependencies": {
+    "socket.io": "^2.1.1"
+  }
+}

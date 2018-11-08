@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="client.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="py-5 text-center">
+    <img class="d-block mx-auto mb-4" src="image/logo.jpg" alt="" width="100" height="72">
+    <h2>ChatRoom</h2>
+    <p class="lead">Wellcome home!</p>
+</div>
+<div id="lobby">
+    <input type="text" id="message_input"/>
+    <button id="msg_button" class="btn btn-primary">send</button>
+</div>
+<div id="side">
+    <h2>Rooms</h2>
+    <div id="rooms"></div>
+    <div class="mb-3">
+        <label>Create a new room</label>
+        <input class="form-control" type="text" id="newRoom" placeholder="Enter the room name"/>
+    </div>
+    <button class="btn btn-md btn-primary">Create</button>
+    <h3>Private Message</h3>
+    <div class="row" id="private">
+        <div class="col-md-6 mb-3">
+            <label for="receiver">To:</label>
+            <input class="form-control" type="text" id="receiver" placeholder="Name"/>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="message">Message:</label>
+            <input class="form-control" type="text" id="message" placeholder="Whisper ... "/>
+        </div>
+    </div>
+    <p id="createrPriv">If you are the creater of the room you can kick people out!</p>
+    <div id="kick"></div>
+</div>
+<div id="inside"></div>
+<div id="chatlog"></div>
+</body>
+</html>
