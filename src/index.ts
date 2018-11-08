@@ -9,8 +9,12 @@ const server = http.createServer(expressServer.app);
 const io = socketIo().listen(server);
 
 expressServer.app.use(router);
-
+expressServer.app.use(express.static(path.join(__dirname, 'frontend')))
 io.on('connection', (socket: socketIo.Socket) => {
-    console.log("hello!!!");
+    console.log("Socket established");
+    socket.on('message', (message : string)=>{
+        console.log(message);
+        io.emit('message', {message});
+    })
 })
 server.listen(8080);
