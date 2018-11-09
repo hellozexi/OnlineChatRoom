@@ -1,15 +1,15 @@
 import ChatServer from './chatserver';
 import router from './router/router';
-import http = require("http");
+
 import socketIo = require("socket.io");
 import path = require("path");
-const expressServer = ChatServer.init(8080);
-const server = http.createServer(expressServer.app);
-const io = socketIo().listen(server);
+const chatServer = ChatServer.init(8080);
 
-expressServer.setRouter(router);
-expressServer.setStaticPath(path.join(__dirname, 'frontend'));
-expressServer.setStaticPath(path.join(__dirname, 'static'));
+const io = socketIo().listen(chatServer.server);
+
+chatServer.setRouter(router);
+chatServer.setStaticPath(path.join(__dirname, 'frontend'));
+chatServer.setStaticPath(path.join(__dirname, 'static'));
 
 io.on('connection', (socket: socketIo.Socket) => {
     console.log("Socket established");
@@ -17,5 +17,5 @@ io.on('connection', (socket: socketIo.Socket) => {
         console.log(message);
         io.emit('messageFromServer', {message});
     })
-})
-server.listen(8080);
+});
+chatServer.server.listen(8080);
