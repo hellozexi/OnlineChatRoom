@@ -17,5 +17,8 @@ io.on('connection', (socket: socketIo.Socket) => {
         console.log(message);
         io.emit('messageFromServer', {message});
     })
+    socket.on('addUser', function (message : string) {
+        console.log("welcome: " + message);
+    })
 })
 server.listen(8080);
