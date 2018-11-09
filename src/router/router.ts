@@ -4,7 +4,7 @@ import path = require("path");
 //import '../../www/client.css'
 const router = Router();
 router.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname,"..", "..", "www", "index.html" ));
-})
+    res.sendFile("index.html");
+});
 
 export default router;
