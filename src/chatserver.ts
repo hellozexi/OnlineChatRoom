@@ -1,15 +1,18 @@
 import * as express from 'express';
 import {Router, Application} from 'express';
 import {Server, createServer} from "http";
+import {Socketmanager} from "./server/socketmanager";
 
 
 export default class ChatServer {
     private readonly _app : Application;
     private readonly _server: Server;
+    private readonly _socketsManager: Socketmanager;
 
     constructor(private port: number) {
         this._app = express();
         this._server = createServer(this.app);
+        this._socketsManager = new Socketmanager(this.server);
     }
 
     get app(): Application {
@@ -20,19 +23,21 @@ export default class ChatServer {
         return this._server;
     }
 
+    get socket(): Socketmanager {
+        return this._socketsManager;
+    }
+
     start(callback ?: Function) {
         this._app.listen(this.port, callback);
+        this.server.listen(this.port);
     }
 
     setRouter(router: Router) {
         this._app.use(router);
     }
 
+
     setStaticPath(path: string) {
         this._app.use(express.static(path));
-    }
-
-    static init(port: number) : ChatServer{
-        return new ChatServer(port);
     }
 }
