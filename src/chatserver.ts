@@ -1,18 +1,18 @@
 import * as express from 'express';
 import {Router, Application} from 'express';
 import {Server, createServer} from "http";
-import {Socketmanager} from "./server/socketmanager";
+import {SocketManager} from "./server/socketmanager";
 
 
 export default class ChatServer {
     private readonly _app : Application;
     private readonly _server: Server;
-    private readonly _socketsManager: Socketmanager;
+    private readonly _socketsManager: SocketManager;
 
     constructor(private port: number) {
         this._app = express();
         this._server = createServer(this.app);
-        this._socketsManager = new Socketmanager(this.server);
+        this._socketsManager = new SocketManager(this.server);
     }
 
     get app(): Application {
@@ -23,7 +23,7 @@ export default class ChatServer {
         return this._server;
     }
 
-    get socket(): Socketmanager {
+    get socket(): SocketManager {
         return this._socketsManager;
     }
 
