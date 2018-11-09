@@ -15,7 +15,7 @@ io.on('connection', (socket: socketIo.Socket) => {
     console.log("Socket established");
     socket.on('message', (message : string)=>{
         console.log(message);
-        io.emit('message', {message});
+        io.emit('messageFromServer', {message});
     })
 })
 server.listen(8080);
