@@ -25,16 +25,35 @@ io.on('connection', function(socket: any){
     console.log('a user connected');
 });
 */
-import express = require("express");
-export default class Server {
-    public app : express.Application;
+// import express = require("express");
+import * as express from 'express';
+import * as socketIo from 'socket.io';
+
+import {Router, Application} from 'express';
+export default class ChatServer {
+    private readonly _app : Application;
+
     constructor(private port: number) {
-        this.app = express();
+        this._app = express();
     }
+
+    get app(): Application {
+        return this._app;
+    }
+
     start(callback ?: Function) {
-        this.app.listen(this.port, callback);
+        this._app.listen(this.port, callback);
     }
-    static init(port: number) : Server{
-        return new Server(port);
+
+    setRouter(router: Router) {
+        this._app.use(router);
+    }
+
+    setStaticPath(path: string) {
+        this._app.use(express.static(path));
+    }
+
+    static init(port: number) : ChatServer{
+        return new ChatServer(port);
     }
 }
