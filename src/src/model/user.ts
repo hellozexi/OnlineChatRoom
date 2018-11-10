@@ -4,7 +4,9 @@ export class User {
     constructor(
         public readonly name: string,
         public readonly socketId: string
-    ) {}
+    ) {
+        this._roomname = null;
+    }
 
     get roomname(): string {
         return this._roomname;

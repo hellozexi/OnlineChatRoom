@@ -3,11 +3,12 @@ import {User} from "./user";
 export class ChatRoom {
     private readonly _name: string;
     private readonly _admin: User;
-    private _users: { [key: string]: User };
+    private readonly _users: { [key: string]: User; };
 
     constructor(name: string, admin: User) {
         this._name = name;
         this._admin = admin;
+        this._users = {};
     }
 
     get name(): string {

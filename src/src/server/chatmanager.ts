@@ -1,9 +1,9 @@
-import {ChatRoom, User} from "../model";
+import {ChatRoom, User} from "../model/index";
 import {Socket} from "socket.io";
 
 export class ChatManager {
-    private readonly chatRooms: {[key: string]: ChatRoom};
-    private readonly onlineUsers: {[key: string]: User};
+    private readonly chatRooms: {[key: string]: ChatRoom; };
+    private readonly onlineUsers: {[key: string]: User; };
 
     constructor() {
         this.chatRooms = {};

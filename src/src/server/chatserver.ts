@@ -5,17 +5,14 @@ import {Socket} from 'socket.io';
 import * as  SocketIO from 'socket.io'
 
 
-import {User, ChatRoom, Message} from './model'
-import {ChatManager} from "./server/chatmanager";
-import {strict} from "assert";
+import {User, ChatRoom, Message} from '../model/index'
+import {ChatManager} from "./chatmanager";
 
 
 export default class ChatServer {
     private readonly app : Application;
     private readonly server: HttpSercer;
     private readonly chat: ChatManager;
-
-
 
     constructor(private port: number) {
         this.app = express();
