@@ -11,11 +11,17 @@ export class SocketManager {
         this.io.on('connection', (socket: Socket) => {
             console.log("Socket established");
             socket.on('message', this.onMessage);
+            socket.on('addUser', this.onAddUser);
         });
     }
 
     onMessage(message : string) {
         console.log(message);
+        this.io.emit('messageFromServer', {message});
+    }
+
+    onAddUser(message : string) {
+        console.log("welcome: " + message);
         this.io.emit('messageFromServer', {message});
     }
 }

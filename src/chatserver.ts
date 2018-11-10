@@ -27,8 +27,8 @@ export default class ChatServer {
         return this._socketsManager;
     }
 
-    start(callback ?: Function) {
-        this._app.listen(this.port, callback);
+    start() {
+        // this._app.listen(this.port, callback);
         this.server.listen(this.port);
     }
 
@@ -36,8 +36,8 @@ export default class ChatServer {
         this._app.use(router);
     }
 
-
     setStaticPath(path: string) {
         this._app.use(express.static(path));
     }
+
 }
