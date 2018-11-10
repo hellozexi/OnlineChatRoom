@@ -21,9 +21,13 @@ export class ChatManager {
         return result;
     }
 
+    getUserByID(socketId: string): User {
+        return this.onlineUsers[socketId];
+    }
+
     // when a new user is added, put him into the default room
     addNewUser(user: User) {
-        this.onlineUsers[user.name] = user;
+        this.onlineUsers[user.socketId] = user;
         this.chatRooms['public hall'].join(user);
         user.roomname = 'public hall';
     }

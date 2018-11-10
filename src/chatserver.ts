@@ -5,7 +5,7 @@ import {Socket} from 'socket.io';
 import * as  SocketIO from 'socket.io'
 
 
-import {User, ChatRoom} from './model'
+import {User, ChatRoom, Message} from './model'
 import {ChatManager} from "./server/chatmanager";
 
 
@@ -32,9 +32,9 @@ export default class ChatServer {
         io.sockets.on('connection', (socket: Socket) => {
             console.log("A new Socket established");
 
-            socket.on('message', (message : string) => {
-                console.log(message);
-                io.emit('messageFromServer', {message});
+            socket.on('message', (message : Message) => {
+                let user = this.chat.getUserByID(socket.id);
+                io.sockets.to(user.roomname).emit('message', message);
             });
 
             socket.on('addUser',(username : string) => {
