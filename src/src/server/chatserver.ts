@@ -17,6 +17,7 @@ export default class ChatServer {
     constructor(private port: number) {
         this.app = express();
         this.server = createServer(this.app);
+        this.chat = new ChatManager();
         this.initSocket();
     }
 
