@@ -7,6 +7,7 @@ import * as  SocketIO from 'socket.io'
 
 import {User, ChatRoom, Message} from './model'
 import {ChatManager} from "./server/chatmanager";
+import {strict} from "assert";
 
 
 export default class ChatServer {
@@ -44,12 +45,29 @@ export default class ChatServer {
                 socket.join(user.roomname);
                 // the event will only be broadcast to clients that have joined the given room
                 // (the socket itself being *excluded*).
-                socket.broadcast.to(user.roomname)
-                    .emit("system", user.name + 'joined this room');
+                socket.broadcast.to(user.roomname).emit("userIn", user.name);
                 // the event will only be broadcast to clients that have joined the given room
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
-                io.sockets.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+            });
+
+            socket.on('switchRoom', (roomname: string) => {
+                let user = this.chat.getUserByID(socket.id);
+                let oldroom = user.roomname;
+                // if successfully update data
+                if (this.chat.switchRoom(user, roomname)) {
+                    socket.join(user.roomname);
+                    socket.broadcast.to(user.roomname).emit("userIn", user.name);
+                    socket.broadcast.to(oldroom).emit("userOut", user.name);
+                }
+                else {
+                    socket.emit('system', 'room name invalid');
+                }
+            });
+
+            socket.on('addRoom', (roomname: string) => {
+
             });
         });
     }

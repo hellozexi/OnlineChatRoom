@@ -31,4 +31,22 @@ export class ChatManager {
         this.chatRooms['public hall'].join(user);
         user.roomname = 'public hall';
     }
+
+    switchRoom(user: User, roomname: string): boolean {
+        // check if the room name is correct
+        if ((user.roomname == roomname) || !(roomname in this.chatRooms)) {
+            return false;
+        }
+        this.chatRooms[roomname].join(user);
+        user.roomname = roomname;
+        return true;
+    }
+
+    addRoom(user: User, roomname: string): boolean {
+        if ((user.roomname == roomname) || (roomname in this.chatRooms)) {
+            return false;
+        }
+        this.chatRooms[roomname] = new ChatRoom(roomname, user);
+        return true;
+    }
 }
