@@ -3,13 +3,15 @@ import {Router, Application} from 'express';
 import {Server as HttpSercer , createServer} from "http";
 import {Socket} from 'socket.io';
 import * as  SocketIO from 'socket.io'
+import * as path from 'path';
 
 
+import router from '../router/router';
 import {User, ChatRoom, Message} from '../model/index'
 import {ChatManager} from "./chatmanager";
 
 
-export default class ChatServer {
+export class ChatServer {
     private readonly app : Application;
     private readonly server: HttpSercer;
     private readonly chat: ChatManager;
@@ -19,11 +21,22 @@ export default class ChatServer {
         this.server = createServer(this.app);
         this.chat = new ChatManager();
         this.initSocket();
+        this.configre();
     }
 
     start() {
         // this._app.listen(this.port, callback);
         this.server.listen(this.port);
+    }
+
+    get express_app(): Application {
+        return this.app;
+    }
+
+    private configre() {
+        this.setRouter(router);
+        this.setStaticPath(path.join(__dirname, '..', 'frontend'));
+        this.setStaticPath(path.join(__dirname, '..', '..', '..', 'static'));
     }
 
     private initSocket() {

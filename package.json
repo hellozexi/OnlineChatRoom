@@ -5,7 +5,9 @@
   "main": "index.js",
   "start": "src/index.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "clean": "rimraf dist",
+    "start": "ts-node ./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -19,13 +21,17 @@
     "@types/jquery": "^3.3.22",
     "@types/node": "^10.12.3",
     "@types/socket.io": "^2.1.0",
+    "@types/supertest": "^2.0.6",
     "express": "^4.16.4",
     "nodemon": "^1.18.6",
-    "socket.io": "^2.1.1"
+    "rimraf": "^2.6.2",
+    "socket.io": "^2.1.1",
+    "ts-node": "^7.0.1"
   },
   "devDependencies": {
     "@types/jest": "^23.3.9",
     "jest": "^23.6.0",
+    "supertest": "^3.3.0",
     "ts-jest": "^23.10.4",
     "typescript": "^3.1.6"
   }
