@@ -3,7 +3,7 @@ import {User} from "./user";
 export class ChatRoom {
     private readonly _name: string;
     private readonly _admin: User;
-    private users: { [key: string]: User };
+    private _users: { [key: string]: User };
 
     constructor(name: string, admin: User) {
         this._name = name;
@@ -18,11 +18,15 @@ export class ChatRoom {
         return this._admin;
     }
 
+    get users(): {[key: string]: User} {
+        return this._users;
+    }
+
     join(user: User) {
-        this.users[user.name] = user;
+        this._users[user.name] = user;
     }
 
     exit(user: string) {
-        delete this.users[user];
+        delete this._users[user];
     }
 }
