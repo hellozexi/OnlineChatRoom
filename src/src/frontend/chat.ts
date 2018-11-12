@@ -7,18 +7,23 @@ socket.on("connect", connect);
  * @param response
  */
 function addRoom(response : any) {
-    console.log(response);
+   //console.log(response);
+    $("#rooms").empty();
+    for(let key in response) {
+        //console.log(key);
+        let room = document.createElement("div");
+        let roomName = document.createElement("li");
+        roomName.innerText = key;
+        room.appendChild(roomName);
+        let in_btn = document.createElement("button");
+        in_btn.setAttribute("class", "btn btn-primary btn-sm");
+        in_btn.innerText = "Get in";
+        room.appendChild(in_btn);
+        $("#rooms").append(room);
+    }
 
 
-    let room = document.createElement("div");
-    let roomName = document.createElement("li");
-    roomName.innerText = response;
-    room.appendChild(roomName);
-    let in_btn = document.createElement("button");
-    in_btn.setAttribute("class", "btn btn-primary btn-sm");
-    in_btn.innerText = "Get in";
-    room.appendChild(in_btn);
-    //$("#rooms").append(room);
+
 }
 
 
