@@ -61,6 +61,7 @@ export class ChatServer {
             });
 
             socket.on('addUser',(username : string) => {
+                console.log(socket.id)
                 let user = new User(username, socket.id);
                 this.chat.login(user);
                 console.log("welcome: " + username);
@@ -78,7 +79,7 @@ export class ChatServer {
             });
 
             socket.on('switchRoom', (roomname: string) => {
-                let user = this.chat.getUserByID(socket.id)
+                let user = this.chat.getUserByID(socket.id);
                 console.log("oldRoom:" + user.roomname);
                 let oldroom = user.roomname;
                 socket.leave(oldroom);
@@ -86,7 +87,7 @@ export class ChatServer {
                 if (this.chat.switchRoom(user, roomname)) {
                     console.log("newRoom" + user.roomname);
                     socket.join(user.roomname);
-                    socket.join(oldroom);
+                    //socket.join(oldroom);
                     socket.broadcast.to(user.roomname).emit("userIn", user.name);
                     socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
 
@@ -108,6 +109,19 @@ export class ChatServer {
                 socket.emit("updateRooms", this.chat.rooms);
                 socket.broadcast.emit("updateRooms", this.chat.rooms);
             });
+
+            socket.on("disconnect", function () {
+                console.log(socket.id);
+                let user = this.chat.getUserByID(socket.id);
+                console.log(user);
+                //console.log(user);
+                //socket.broadcast.emit("currentUsers", "currentUsers");
+                /*let user = this.chat.getUserByID(socket.id);
+                socket.leave(user.roomname);
+                this.chat.logout(user);
+                socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));*/
+
+            })
         });
     }
 
