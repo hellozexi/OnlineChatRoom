@@ -2,7 +2,8 @@ const socket = (window as any).io();
 socket.on("updateRooms", addRoom);
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
-socket.on("public_msg_to_client", showMsg)
+socket.on("public_msg_to_client", showMsg);
+socket.on("private_msg_to_client", showMsg);
 //socket.on("userIn", userAction);
 //socket.on("userOut", userAction);
 /**
@@ -39,11 +40,19 @@ function showUsers(response : any) {
         let userName = document.createElement("li");
         userName.innerText = response[i].name;
         user.appendChild(userName);
+        //private communication
+       /* let private_btn = document.createElement("a");
+        private_btn.innerText = "message";
+        private_btn.addEventListener("click", (e : Event) => {
+            let msg = prompt("What do you want to say?");
+            sendPrivateMsg(response[i].name, msg);
+        })*/
         //kick if owner of room
         /*let in_btn = document.createElement("button");
         in_btn.setAttribute("class", "btn btn-primary btn-sm");
         in_btn.innerText = "Get in";
         room.appendChild(in_btn);*/
+        //user.appendChild(private_btn);
         $("#users").append(user);
     }
 
@@ -64,6 +73,19 @@ function showMsg(response : any) {
 /**
  * emmit messages
  */
+function sendPrivateMsg() {
+    let user = $("#receiver").val();
+    let msg = $("#message").val();
+    if(user === "")
+        return;
+    if(msg === "")
+        return;
+    socket.emit("privateMsg", [user, msg]);
+    //$("#receiver").val("");
+    $("msg").val("");
+}
+document.getElementById("private_msg_button").addEventListener("click", sendPrivateMsg);
+
 //when a new user come in, prompt a dialog.
 function connect() {
     let message = prompt("Gave yourself a name");
