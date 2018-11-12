@@ -52,7 +52,7 @@ export class ChatServer {
 
     private initSocket() {
         this.io = SocketIO().listen(this.server);
-        this.io.sockets.on('connection', (socket: Socket) => {
+        this.io.on('connection', (socket: Socket) => {
             console.log("A new Socket established");
 
             socket.on('message', (message : Message) => {
@@ -71,29 +71,35 @@ export class ChatServer {
                 // the event will only be broadcast to clients that have joined the given room
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
-                socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-                socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                console.log("Which room:" + user.roomname);
+                this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                //socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
                 socket.emit('updateRooms', this.chat.rooms);
             });
 
             socket.on('switchRoom', (roomname: string) => {
-                let user = this.chat.getUserByID(socket.id);
+                let user = this.chat.getUserByID(socket.id)
+                console.log("oldRoom:" + user.roomname);
                 let oldroom = user.roomname;
+                socket.leave(oldroom);
                 // if successfully update data
                 if (this.chat.switchRoom(user, roomname)) {
+                    console.log("newRoom" + user.roomname);
                     socket.join(user.roomname);
+                    socket.join(oldroom);
                     socket.broadcast.to(user.roomname).emit("userIn", user.name);
                     socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
 
                     socket.broadcast.to(oldroom).emit("userOut", user.name);
                     socket.broadcast.to(oldroom).emit("currentUsers", this.chat.usersInRoom(oldroom));
 
-                    socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-                    socket.emit("currentUsers", this.chat.usersInRoom(user.roomname));
+                    this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                    //socket.emit("currentUsers", this.chat.usersInRoom(user.roomname));
                 }
                 else {
                     socket.emit('system', 'room name invalid');
                 }
+
             });
 
             socket.on('addRoom', (roomname: string) => {
