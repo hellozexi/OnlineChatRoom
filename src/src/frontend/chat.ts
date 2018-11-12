@@ -2,6 +2,7 @@ const socket = (window as any).io();
 socket.on("updateRooms", addRoom);
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
+socket.on("public_msg_to_client", showMsg)
 //socket.on("userIn", userAction);
 //socket.on("userOut", userAction);
 /**
@@ -53,6 +54,13 @@ function userAction(response : any) {
     log.innerText = response;
     $("#chatlog").add(log);
 }
+
+function showMsg(response : any) {
+    //console.log("from server:" + response);
+    let msg = document.createElement("p");
+    msg.innerText = response;
+    $("#chatlog").append(msg);
+}
 /**
  * emmit messages
  */
@@ -84,7 +92,7 @@ function createNewMsg() {
     if(message === "") {
         return;
     }
-    socket.emit("message2", message);
+    socket.emit("public_msg", message);
     console.log(message);
     $("#message_input").val("");
 }

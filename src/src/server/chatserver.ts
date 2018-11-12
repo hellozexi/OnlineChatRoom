@@ -55,9 +55,10 @@ export class ChatServer {
         this.io.on('connection', (socket: Socket) => {
             console.log("A new Socket established");
 
-            socket.on('message', (message : Message) => {
+            socket.on('public_msg', (message : Message) => {
                 let user = this.chat.getUserByID(socket.id);
-                this.io.sockets.to(user.roomname).emit('message', message);
+                socket.join(user.roomname);
+                this.io.sockets.to(user.roomname).emit('public_msg_to_client', user.name + ":" + message);
             });
 
             socket.on('addUser',(username : string) => {
@@ -112,14 +113,10 @@ export class ChatServer {
 
             socket.on("disconnect", () => {
                 console.log(socket.id);
-                //let user = this.chat.getUserByID(socket.id);
-                //console.log(user);
-                //socket.broadcast.emit("currentUsers", "currentUsers");
                 let user = this.chat.getUserByID(socket.id);
                 socket.leave(user.roomname);
                 this.chat.logout(user);
                 socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-
             })
         });
     }
