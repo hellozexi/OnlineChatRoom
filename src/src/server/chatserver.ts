@@ -110,16 +110,15 @@ export class ChatServer {
                 socket.broadcast.emit("updateRooms", this.chat.rooms);
             });
 
-            socket.on("disconnect", function () {
+            socket.on("disconnect", () => {
                 console.log(socket.id);
-                let user = this.chat.getUserByID(socket.id);
-                console.log(user);
+                //let user = this.chat.getUserByID(socket.id);
                 //console.log(user);
                 //socket.broadcast.emit("currentUsers", "currentUsers");
-                /*let user = this.chat.getUserByID(socket.id);
+                let user = this.chat.getUserByID(socket.id);
                 socket.leave(user.roomname);
                 this.chat.logout(user);
-                socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));*/
+                socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
 
             })
         });
