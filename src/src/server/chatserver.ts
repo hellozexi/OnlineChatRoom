@@ -7,14 +7,16 @@ import * as path from 'path';
 
 
 import router from '../router/router';
-import {User, ChatRoom, Message} from '../model/index'
+import {User, Message} from '../model'
 import {ChatManager} from "./chatmanager";
+import {AddressInfo} from "net";
 
 
 export class ChatServer {
     private readonly app : Application;
     private readonly server: HttpSercer;
     private readonly chat: ChatManager;
+    private io: SocketIO.Server;
 
     constructor(private port: number) {
         this.app = express();
@@ -29,6 +31,15 @@ export class ChatServer {
         this.server.listen(this.port);
     }
 
+    test_start(): string | AddressInfo {
+        return this.server.listen().address();
+    }
+
+    close() {
+        this.io.close();
+        this.server.close();
+    }
+
     get express_app(): Application {
         return this.app;
     }
@@ -40,18 +51,18 @@ export class ChatServer {
     }
 
     private initSocket() {
-        let io = SocketIO().listen(this.server);
-        io.sockets.on('connection', (socket: Socket) => {
+        this.io = SocketIO().listen(this.server);
+        this.io.sockets.on('connection', (socket: Socket) => {
             console.log("A new Socket established");
 
             socket.on('message', (message : Message) => {
                 let user = this.chat.getUserByID(socket.id);
-                io.sockets.to(user.roomname).emit('message', message);
+                this.io.sockets.to(user.roomname).emit('message', message);
             });
 
             socket.on('addUser',(username : string) => {
                 let user = new User(username, socket.id);
-                this.chat.addNewUser(user);
+                this.chat.login(user);
                 console.log("welcome: " + username);
                 socket.join(user.roomname);
                 // the event will only be broadcast to clients that have joined the given room
@@ -88,8 +99,8 @@ export class ChatServer {
             socket.on('addRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
                 this.chat.addRoom(user, roomname);
-                socket.emit("updateRooms", this.chat.getRooms());
-                socket.broadcast.emit("updateRooms", this.chat.getRooms());
+                socket.emit("updateRooms", this.chat.rooms);
+                socket.broadcast.emit("updateRooms", this.chat.rooms);
             });
         });
     }

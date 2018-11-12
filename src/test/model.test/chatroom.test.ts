@@ -32,14 +32,14 @@ describe('Test the ChatRoom', () => {
         chatroom.join(user);
         expect(chatroom.users[user.name]).toBe(user);
 
-        chatroom.exit(user.name);
+        chatroom.exit(user);
         expect(chatroom.users).toEqual({});
     });
 
     test('test exit chat room not exist', () => {
         let chatroom = new ChatRoom('public hall', null);
         expect(chatroom.users).toEqual({});
-        chatroom.exit('not exist');
+        chatroom.exit(new User('not exist', 'fake'));
         expect(chatroom.users).toEqual({});
     });
 });
