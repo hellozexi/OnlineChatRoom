@@ -19,6 +19,7 @@ export class ChatServer {
     constructor(private port: number) {
         this.app = express();
         this.server = createServer(this.app);
+        this.chat = new ChatManager();
         this.initSocket();
         this.configre();
     }
@@ -60,6 +61,7 @@ export class ChatServer {
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
                 socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
             });
 
             socket.on('switchRoom', (roomname: string) => {
@@ -77,7 +79,10 @@ export class ChatServer {
             });
 
             socket.on('addRoom', (roomname: string) => {
-
+                let user = this.chat.getUserByID(socket.id);
+                this.chat.addRoom(user, roomname);
+                socket.emit("updateRooms", this.chat.getRooms());
+                socket.broadcast.emit("updateRooms", this.chat.getRooms());
             });
         });
     }
