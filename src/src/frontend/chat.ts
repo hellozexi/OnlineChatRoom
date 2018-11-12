@@ -19,6 +19,11 @@ function addRoom(response : any) {
         let in_btn = document.createElement("button");
         in_btn.setAttribute("class", "btn btn-primary btn-sm");
         in_btn.innerText = "Get in";
+        in_btn.setAttribute("id", key);
+        in_btn.addEventListener("click", (e : Event) => {
+            switchRoom(key);
+            //console.log(key);
+        });
         room.appendChild(in_btn);
         $("#rooms").append(room);
     }
@@ -77,3 +82,8 @@ function createNewMsg() {
     $("#message_input").val("");
 }
 document.getElementById("msg_button").addEventListener("click", createNewMsg);
+
+function switchRoom(roomName : string) {
+    socket.emit("switchRoom", roomName);
+    return;
+}

@@ -62,6 +62,7 @@ export class ChatServer {
                 // broadcast current users in the room
                 socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
                 socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                socket.emit('updateRooms', this.chat.getRooms());
             });
 
             socket.on('switchRoom', (roomname: string) => {
@@ -71,7 +72,13 @@ export class ChatServer {
                 if (this.chat.switchRoom(user, roomname)) {
                     socket.join(user.roomname);
                     socket.broadcast.to(user.roomname).emit("userIn", user.name);
+                    socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
+
                     socket.broadcast.to(oldroom).emit("userOut", user.name);
+                    socket.broadcast.to(oldroom).emit("currentUsers", this.chat.usersInRoom(oldroom));
+
+                    socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                    socket.emit("currentUsers", this.chat.usersInRoom(user.roomname));
                 }
                 else {
                     socket.emit('system', 'room name invalid');
