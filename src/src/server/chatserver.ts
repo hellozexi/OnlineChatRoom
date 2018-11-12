@@ -61,6 +61,7 @@ export class ChatServer {
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
                 socket.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
             });
 
             socket.on('switchRoom', (roomname: string) => {
