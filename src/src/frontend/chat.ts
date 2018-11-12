@@ -21,9 +21,6 @@ function addRoom(response : any) {
         room.appendChild(in_btn);
         $("#rooms").append(room);
     }
-
-
-
 }
 
 
