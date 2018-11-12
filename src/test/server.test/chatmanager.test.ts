@@ -56,17 +56,17 @@ describe('Test the ChatManager', () => {
         manager.addRoom(user, 'room');
 
         expect(user.roomname).toEqual('public hall');
-        expect(manager.rooms['public hall'].users['jason']).toBe(user);
-        expect(manager.rooms['room'].users['jason']).toBeUndefined();
+        expect(manager.rooms['public hall'].users).toContain(user);
+        expect(manager.rooms['room'].users).toHaveLength(0);
 
         manager.switchRoom(user, 'room');
 
         // user's room name changed
         expect(user.roomname).toEqual('room');
         // new room contains user
-        expect(manager.rooms['room'].users['jason']).toBe(user);
+        expect(manager.rooms['room'].users).toContain(user);
         // old room doesn't contain user
-        expect(manager.rooms['public hall'].users['jason']).toBeUndefined();
+        expect(manager.rooms['public hall'].users).toHaveLength(0);
     });
 
     test('test switch room', () => {
@@ -77,16 +77,16 @@ describe('Test the ChatManager', () => {
         manager.addRoom(user, 'room');
 
         expect(user.roomname).toEqual('public hall');
-        expect(manager.rooms['public hall'].users['jason']).toBe(user);
-        expect(manager.rooms['room'].users['jason']).toBeUndefined();
+        expect(manager.rooms['public hall'].users).toContain(user);
+        expect(manager.rooms['room'].users).toHaveLength(0);
 
         expect(manager.switchRoom(user, 'room')).toBeTruthy();
 
         // user's room name changed
         expect(user.roomname).toEqual('room');
         // new room contains user
-        expect(manager.rooms['room'].users['jason']).toBe(user);
+        expect(manager.rooms['room'].users).toContain(user);
         // old room doesn't contain user
-        expect(manager.rooms['public hall'].users['jason']).toBeUndefined();
+        expect(manager.rooms['public hall'].users).toHaveLength(0);
     });
 });

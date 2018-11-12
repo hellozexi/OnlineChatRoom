@@ -22,12 +22,7 @@ export class ChatManager {
     }
 
     usersInRoom(roomname: string): User[] {
-        let result: User[] = [];
-        let users = this.chatRooms.get(roomname).users;
-        Object.keys(users).forEach((key) => {
-            result.push(users[key]);
-        });
-        return result;
+        return this.chatRooms.get(roomname).users;
     }
 
     getUserByID(socketId: string): User {
