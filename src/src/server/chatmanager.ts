@@ -1,4 +1,4 @@
-import {ChatRoom, User} from "../model/index";
+import {ChatRoom, User} from "../model";
 import {Socket} from "socket.io";
 
 export class ChatManager {
@@ -10,6 +10,10 @@ export class ChatManager {
         this.onlineUsers = {};
 
         this.chatRooms['public hall'] = new ChatRoom('public hall', null)
+    }
+
+    get rooms(): {[key: string]: ChatRoom; } {
+        return this.chatRooms;
     }
 
     usersInRoom(roomname: string): User[] {
@@ -25,11 +29,20 @@ export class ChatManager {
         return this.onlineUsers[socketId];
     }
 
-    // when a new user is added, put him into the default room
-    addNewUser(user: User) {
+    userExist(socketId: string) {
+        return this.onlineUsers[socketId] !== undefined;
+    }
+
+    // when a new user login, put him into the default room
+    login(user: User) {
         this.onlineUsers[user.socketId] = user;
         this.chatRooms['public hall'].join(user);
         user.roomname = 'public hall';
+    }
+
+    logout(user: User) {
+        delete this.onlineUsers[user.socketId];
+        this.chatRooms[user.roomname].exit(user);
     }
 
     switchRoom(user: User, roomname: string): boolean {
@@ -37,6 +50,7 @@ export class ChatManager {
         if ((user.roomname == roomname) || !(roomname in this.chatRooms)) {
             return false;
         }
+        this.chatRooms[user.roomname].exit(user);
         this.chatRooms[roomname].join(user);
         user.roomname = roomname;
         return true;

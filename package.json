@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest",
     "clean": "rimraf dist",
+    "watch:build": "tsc --watch",
     "start": "ts-node ./src/index.ts"
   },
   "repository": {

@@ -50,7 +50,7 @@ export class ChatServer {
 
             socket.on('addUser',(username : string) => {
                 let user = new User(username, socket.id);
-                this.chat.addNewUser(user);
+                this.chat.login(user);
                 console.log("welcome: " + username);
                 socket.join(user.roomname);
                 // the event will only be broadcast to clients that have joined the given room

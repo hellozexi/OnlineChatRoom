@@ -27,7 +27,7 @@ export class ChatRoom {
         this._users[user.name] = user;
     }
 
-    exit(user: string) {
-        delete this._users[user];
+    exit(user: User) {
+        delete this._users[user.name];
     }
 }
