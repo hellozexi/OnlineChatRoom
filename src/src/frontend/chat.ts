@@ -1,8 +1,9 @@
 const socket = (window as any).io();
-
 socket.on("updateRooms", addRoom);
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
+//socket.on("userIn", userAction);
+//socket.on("userOut", userAction);
 /**
  * handle messages
  * @param response
@@ -29,6 +30,7 @@ function addRoom(response : any) {
     }
 }
 function showUsers(response : any) {
+    console.log(response);
     $("#users").empty();
     for(let i in response) {
         //console.log(response[user].name);
@@ -45,7 +47,12 @@ function showUsers(response : any) {
     }
 
 }
-
+function userAction(response : any) {
+    console.log(response);
+    let log = document.createElement("p");
+    log.innerText = response;
+    $("#chatlog").add(log);
+}
 /**
  * emmit messages
  */
@@ -66,7 +73,7 @@ function createNewRoom(){
         return;
     }
     socket.emit("addRoom", message);
-    //console.log(message);
+
     $("#newRoom").val("");
 }
 document.getElementById("newRoom_btn").addEventListener("click", createNewRoom);
