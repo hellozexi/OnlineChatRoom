@@ -1,16 +1,24 @@
 const socket = (window as any).io();
 
-socket.on("messageFromServer", messageReceived);
+socket.on("updateRooms", addRoom);
 socket.on("connect", connect);
 /**
  * handle messages
  * @param response
  */
-function messageReceived(response : any) {
+function addRoom(response : any) {
     console.log(response);
-    let room = document.createElement("li");
-    room.innerText = response.message;
-    $("#rooms").append(room);
+
+
+    let room = document.createElement("div");
+    let roomName = document.createElement("li");
+    roomName.innerText = response;
+    room.appendChild(roomName);
+    let in_btn = document.createElement("button");
+    in_btn.setAttribute("class", "btn btn-primary btn-sm");
+    in_btn.innerText = "Get in";
+    room.appendChild(in_btn);
+    //$("#rooms").append(room);
 }
 
 
@@ -33,8 +41,8 @@ function createNewRoom(){
     if(message === "") {
         return;
     }
-    socket.emit("message", message);
-    console.log(message);
+    socket.emit("addRoom", message);
+    //console.log(message);
     $("#newRoom").val("");
 }
 document.getElementById("newRoom_btn").addEventListener("click", createNewRoom);

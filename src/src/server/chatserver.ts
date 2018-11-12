@@ -78,7 +78,9 @@ export class ChatServer {
             });
 
             socket.on('addRoom', (roomname: string) => {
-
+                let user = this.chat.getUserByID(socket.id);
+                this.chat.addRoom(user, roomname);
+                socket.emit("updateRooms", this.chat.getRooms());
             });
         });
     }

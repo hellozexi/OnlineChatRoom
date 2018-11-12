@@ -49,4 +49,7 @@ export class ChatManager {
         this.chatRooms[roomname] = new ChatRoom(roomname, user);
         return true;
     }
+    getRooms() {
+        return this.chatRooms;
+    }
 }
