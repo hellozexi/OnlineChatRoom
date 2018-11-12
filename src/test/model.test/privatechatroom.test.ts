@@ -1,34 +1,23 @@
-import {ChatRoom, User} from "../../src/model";
+import {PrivateChatRoom, User} from "../../src/model";
 
 
 describe('Test the ChatRoom', () => {
     let user: User;
-    let chatroom: ChatRoom;
+    let chatroom: PrivateChatRoom;
 
     beforeEach(() => {
         user = new User('jason', 'mock socket id');
-        chatroom = new ChatRoom('public hall', null);
-    });
-
-    test('test chatroom without admin', () => {
-        chatroom = new ChatRoom('public hall', null);
-        expect(chatroom.users).toEqual([]);
-        expect(chatroom.users).toHaveLength(0);
-        expect(chatroom.admin).toBeNull();
-        expect(chatroom.name).toEqual('public hall');
+        chatroom = new PrivateChatRoom('public hall', user, 'passwd');
     });
 
     test('test chatroom with admin', () => {
-        chatroom = new ChatRoom('hall', user);
         expect(chatroom.users).toEqual([]);
         expect(chatroom.users).toHaveLength(0);
         expect(chatroom.admin).toBe(user);
-        expect(chatroom.name).toEqual('hall');
+        expect(chatroom.name).toEqual('public hall');
     });
 
     test('test join chat room', () => {
-        chatroom = new ChatRoom('public hall', null);
-
         chatroom.join(user);
         expect(chatroom.users).toContain(user);
     });
@@ -48,5 +37,13 @@ describe('Test the ChatRoom', () => {
         chatroom.exit(new User('not exist', 'fake'));
         expect(chatroom.users).toEqual([]);
         expect(chatroom.users).toHaveLength(0);
+    });
+
+    test('test password', () => {
+        expect(chatroom.check_passwd('passwd')).toBeTruthy();
+    });
+
+    test('test wrong password', () => {
+        expect(chatroom.check_passwd('wrong')).toBeFalsy();
     });
 });

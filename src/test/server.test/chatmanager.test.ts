@@ -2,32 +2,28 @@ import {ChatManager} from "../../src/server/chatmanager";
 import {User} from "../../src/model";
 
 describe('Test the ChatManager', () => {
+    let manager :ChatManager;
+    let socketId = 'mock socket id';
+    let user: User;
+
+    beforeEach(() => {
+        manager = new ChatManager();
+        user = new User('jason', socketId);
+    });
 
     test('test user login', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
-
         manager.login(user);
         let user_by_id = manager.getUserByID(socketId);
         expect(user_by_id.roomname).toBe('public hall');
     });
 
     test('tell if user exist', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
-
         manager.login(user);
         expect(manager.hasUserId(user.socketId)).toBeTruthy();
         expect(manager.hasUserId('fake')).toBeFalsy();
     });
 
     test('test user logout', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
-
         expect(manager.hasUserId(user.socketId)).toBeFalsy();
         manager.login(user);
         expect(manager.hasUserId(user.socketId)).toBeTruthy();
@@ -38,10 +34,6 @@ describe('Test the ChatManager', () => {
     });
 
     test('test add room', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
-
         manager.addRoom(user, 'room');
         let room = manager.rooms['room'];
         expect(room.name).toEqual('room');
@@ -49,9 +41,6 @@ describe('Test the ChatManager', () => {
     });
 
     test('test switch room', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
         manager.login(user);
         manager.addRoom(user, 'room');
 
@@ -70,9 +59,6 @@ describe('Test the ChatManager', () => {
     });
 
     test('test switch room', () => {
-        let manager = new ChatManager();
-        let socketId = 'mock socket id';
-        let user = new User('jason', socketId);
         manager.login(user);
         manager.addRoom(user, 'room');
 
