@@ -1,7 +1,5 @@
 import {ChatManager} from "../../src/server/chatmanager";
-import {User, ChatRoom, Message} from "../../src/model";
-import {createHash} from "crypto";
-
+import {User} from "../../src/model";
 
 describe('Test the ChatManager', () => {
 
@@ -21,8 +19,8 @@ describe('Test the ChatManager', () => {
         let user = new User('jason', socketId);
 
         manager.login(user);
-        expect(manager.userExist(user.socketId)).toBeTruthy();
-        expect(manager.userExist('fake')).toBeFalsy();
+        expect(manager.hasUserId(user.socketId)).toBeTruthy();
+        expect(manager.hasUserId('fake')).toBeFalsy();
     });
 
     test('test user logout', () => {
@@ -30,13 +28,13 @@ describe('Test the ChatManager', () => {
         let socketId = 'mock socket id';
         let user = new User('jason', socketId);
 
-        expect(manager.userExist(user.socketId)).toBeFalsy();
+        expect(manager.hasUserId(user.socketId)).toBeFalsy();
         manager.login(user);
-        expect(manager.userExist(user.socketId)).toBeTruthy();
-        expect(manager.userExist('fake')).toBeFalsy();
+        expect(manager.hasUserId(user.socketId)).toBeTruthy();
+        expect(manager.hasUserId('fake')).toBeFalsy();
 
         manager.logout(user);
-        expect(manager.userExist(user.socketId)).toBeFalsy();
+        expect(manager.hasUserId(user.socketId)).toBeFalsy();
     });
 
     test('test add room', () => {

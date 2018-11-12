@@ -1,24 +1,29 @@
 import {ChatRoom, User} from "../model";
-import {Socket} from "socket.io";
+import {UserManager} from "./usermanager";
 
 export class ChatManager {
-    private readonly chatRooms: {[key: string]: ChatRoom; };
-    private readonly onlineUsers: {[key: string]: User; };
+    private readonly chatRooms: Map<string, ChatRoom>;
+    private readonly onlineUsers: UserManager;
+
 
     constructor() {
-        this.chatRooms = {};
-        this.onlineUsers = {};
+        this.chatRooms = new Map<string, ChatRoom>();
+        this.onlineUsers = new UserManager();
 
-        this.chatRooms['public hall'] = new ChatRoom('public hall', null)
+        this.chatRooms.set('public hall', new ChatRoom('public hall', null));
     }
 
     get rooms(): {[key: string]: ChatRoom; } {
-        return this.chatRooms;
+        let rooms: {[key: string]: ChatRoom; } = {};
+        for (let [key, value] of this.chatRooms.entries()) {
+            rooms[key] = value;
+        }
+        return rooms;
     }
 
     usersInRoom(roomname: string): User[] {
         let result: User[] = [];
-        let users = this.chatRooms[roomname].users;
+        let users = this.chatRooms.get(roomname).users;
         Object.keys(users).forEach((key) => {
             result.push(users[key]);
         });
@@ -26,44 +31,49 @@ export class ChatManager {
     }
 
     getUserByID(socketId: string): User {
-        return this.onlineUsers[socketId];
+        return this.onlineUsers.getById(socketId);
     }
 
-    userExist(socketId: string) {
-        return this.onlineUsers[socketId] !== undefined;
+    getUserByName(name: string): User {
+        return this.onlineUsers.getByName(name);
+    }
+
+    hasUserId(socketId: string): boolean {
+        return this.onlineUsers.hasId(socketId);
+    }
+
+    hasUserName(username: string): boolean {
+        return this.onlineUsers.hasName(username);
     }
 
     // when a new user login, put him into the default room
     login(user: User) {
-        this.onlineUsers[user.socketId] = user;
-        this.chatRooms['public hall'].join(user);
+        this.onlineUsers.set(user);
+        this.chatRooms.get('public hall').join(user);
         user.roomname = 'public hall';
     }
 
     logout(user: User) {
-        delete this.onlineUsers[user.socketId];
-        this.chatRooms[user.roomname].exit(user);
+        this.onlineUsers.delete(user);
+        this.chatRooms.get(user.roomname).exit(user);
     }
 
     switchRoom(user: User, roomname: string): boolean {
         // check if the room name is correct
-        if ((user.roomname == roomname) || !(roomname in this.chatRooms)) {
+        if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
             return false;
         }
-        this.chatRooms[user.roomname].exit(user);
-        this.chatRooms[roomname].join(user);
+        this.chatRooms.get(user.roomname).exit(user);
+        this.chatRooms.get(roomname).join(user);
         user.roomname = roomname;
         return true;
     }
 
     addRoom(user: User, roomname: string): boolean {
-        if ((user.roomname == roomname) || (roomname in this.chatRooms)) {
+        if (this.chatRooms.has(roomname)) {
             return false;
         }
-        this.chatRooms[roomname] = new ChatRoom(roomname, user);
+        this.chatRooms.set(roomname, new ChatRoom(roomname, user));
         return true;
-    }
-    getRooms() {
-        return this.chatRooms;
     }
 }

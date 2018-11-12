@@ -7,7 +7,7 @@ import * as path from 'path';
 
 
 import router from '../router/router';
-import {User, ChatRoom, Message} from '../model/index'
+import {User, Message} from '../model'
 import {ChatManager} from "./chatmanager";
 
 
@@ -81,8 +81,8 @@ export class ChatServer {
             socket.on('addRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
                 this.chat.addRoom(user, roomname);
-                socket.emit("updateRooms", this.chat.getRooms());
-                socket.broadcast.emit("updateRooms", this.chat.getRooms());
+                socket.emit("updateRooms", this.chat.rooms);
+                socket.broadcast.emit("updateRooms", this.chat.rooms);
             });
         });
     }
