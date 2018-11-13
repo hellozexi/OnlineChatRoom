@@ -122,7 +122,11 @@ export class ChatManager {
         // if this user is banned
         if (!this.privateChatRooms.get(roomname).join(user))
             return false;
-        this.chatRooms.get(user.roomname).exit(user);
+        // exit the original room
+        if (this.chatRooms.has(user.roomname))
+            this.chatRooms.get(user.roomname).exit(user);
+        if (this.privateChatRooms.has(user.roomname))
+            this.privateChatRooms.get(user.roomname).exit(user);
         user.roomname = roomname;
         return true
     }
