@@ -129,3 +129,29 @@ describe('Test the ChatManager', () => {
         expect(manager.usersInRoom('room')).toHaveLength(0);
     });
 });
+
+describe('test private room(with password)', () => {
+    let manager: ChatManager;
+    let user: User;
+    let fray: User;
+    let passwd = 'password';
+
+    beforeEach(() => {
+        manager = new ChatManager();
+        user = new User('jason', 'mock socket id');
+        fray = new User('fray', 'another socket id');
+        manager.login(user);
+        manager.login(fray);
+    });
+
+    test('test create private room', () => {
+        expect(manager.addPrivateRoom(user, 'room', passwd)).toBeTruthy();
+        expect(manager.privateRooms['room']).toBeDefined();
+    });
+
+    test('test join private room', () => {
+        expect(manager.addPrivateRoom(user, 'room', passwd)).toBeTruthy();
+        expect(manager.switchPrivateRoom(fray, 'room', passwd)).toBeTruthy();
+        expect(manager.usersInRoom('room')).toContain(fray);
+    });
+});

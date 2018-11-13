@@ -1,13 +1,16 @@
-import {ChatRoom, User} from "../model";
+import {ChatRoom, PrivateChatRoom, User} from "../model";
 import {UserManager} from "./usermanager";
 
 export class ChatManager {
     private readonly chatRooms: Map<string, ChatRoom>;
+    private readonly privateChatRooms: Map<string, PrivateChatRoom>;
     private readonly onlineUsers: UserManager;
 
 
     constructor() {
+        // chat rooms or private chat rooms should not have a same name
         this.chatRooms = new Map<string, ChatRoom>();
+        this.privateChatRooms = new Map<string, PrivateChatRoom>();
         this.onlineUsers = new UserManager();
 
         this.chatRooms.set('public hall', new ChatRoom('public hall', null));
@@ -21,8 +24,18 @@ export class ChatManager {
         return rooms;
     }
 
+    get privateRooms():  {[key: string]: PrivateChatRoom; } {
+        let rooms: {[key: string]: PrivateChatRoom; } = {};
+        for (let [key, value] of this.privateChatRooms.entries()) {
+            rooms[key] = value;
+        }
+        return rooms;
+    }
+
     usersInRoom(roomname: string): User[] {
-        return this.chatRooms.get(roomname).users;
+        if (this.chatRooms.has(roomname))
+            return this.chatRooms.get(roomname).users;
+        return this.privateChatRooms.get(roomname).users;
     }
 
     getUserByID(socketId: string): User {
@@ -41,8 +54,6 @@ export class ChatManager {
         return this.onlineUsers.hasName(username);
     }
 
-
-
     // when a new user login, put him into the default room
     login(user: User): boolean {
         // duplicate user name or socket id
@@ -59,10 +70,20 @@ export class ChatManager {
     }
 
     addRoom(user: User, roomname: string): boolean {
-        if (this.chatRooms.has(roomname)) {
+        // check if roomname has been used for chat room or private chat room
+        if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
             return false;
         }
         this.chatRooms.set(roomname, new ChatRoom(roomname, user));
+        return true;
+    }
+
+    addPrivateRoom(user: User, roomname: string, password: string): boolean {
+        // check if roomname has been used for chat room or private chat room
+        if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
+            return false;
+        }
+        this.privateChatRooms.set(roomname, new PrivateChatRoom(roomname, user, password));
         return true;
     }
 
@@ -71,7 +92,7 @@ export class ChatManager {
         if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
             return false;
         }
-        // this user is banned
+        // if this user is banned
         if (!this.chatRooms.get(roomname).join(user))
             return false;
         this.chatRooms.get(user.roomname).exit(user);
@@ -79,22 +100,47 @@ export class ChatManager {
         return true;
     }
 
-    banUser(admin: User, banned: User, roomname: string): boolean {
-        // room does not exist
-        if (!this.chatRooms.has(roomname))
+    switchPrivateRoom(user: User, roomname: string, password: string): boolean {
+        // check if the room name is correct
+        if ((user.roomname == roomname) || !this.privateChatRooms.has(roomname)) {
             return false;
-        // return if it could be banned
-        return this.chatRooms.get(roomname).banUser(admin, banned);
+        }
+        // check password
+        if (!this.privateChatRooms.get(roomname).check_passwd(password))
+            return false;
+        // if this user is banned
+        if (!this.privateChatRooms.get(roomname).join(user))
+            return false;
+        this.chatRooms.get(user.roomname).exit(user);
+        user.roomname = roomname;
+        return true
+    }
+
+    banUser(admin: User, banned: User, roomname: string): boolean {
+        if (this.chatRooms.has(roomname))
+            // return if it could be banned
+            return this.chatRooms.get(roomname).banUser(admin, banned);
+        if (this.privateChatRooms.has(roomname))
+            // return if it could be banned
+            return this.privateChatRooms.get(roomname).banUser(admin, banned);
+        // room does not exist
+        return false;
     }
 
     kickUserOut(admin: User, out: User, roomname: string): boolean {
+        if (this.chatRooms.has(roomname)) {
+            // admin is not the admin of the chat room
+            if (this.chatRooms.get(roomname).admin.socketId !== admin.socketId)
+                return false;
+            return this.switchRoom(out, 'public hall');
+        }
+        if (this.privateChatRooms.has(roomname)) {
+            // admin is not the admin of the chat room
+            if (this.privateChatRooms.get(roomname).admin.socketId !== admin.socketId)
+                return false;
+            return this.switchRoom(out, 'public hall');
+        }
         // room does not exist
-        if (!this.chatRooms.has(roomname))
-            return false;
-        // admin is not the admin of the chat room
-        if (this.chatRooms.get(roomname).admin.socketId !== admin.socketId)
-            return false;
-
-        return this.switchRoom(out, 'public hall');
+        return false;
     }
 }
