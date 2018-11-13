@@ -1,11 +1,12 @@
 export class User {
     private _roomname: string;
+    public readonly name: string;
+    public readonly socketId: string;
 
-    constructor(
-        public readonly name: string,
-        public readonly socketId: string
-    ) {
+    constructor(name: string, socketId: string) {
         this._roomname = null;
+        this.name = name;
+        this.socketId = socketId;
     }
 
     get roomname(): string {

@@ -5,9 +5,12 @@ socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
 socket.on("public_msg_to_client", showMsg);
 socket.on("private_msg_to_client", showMsg);
+socket.on("currentRoom", (response : any) => {
+    document.getElementById("cur_room").innerText = response;
+})
 //failed message
-socket.on("kick_failed", (response : any)=> {
-    prompt(response);
+socket.on("system", (response : any) => {
+    alert(response);
 })
 //socket.on("userIn", userAction);
 //socket.on("userOut", userAction);
@@ -98,10 +101,14 @@ function showMsg(response : any) {
 function sendPrivateMsg() {
     let user = $("#receiver").val();
     let msg = $("#message").val();
-    if(user === "")
+    /*if(user === "")
+        alert("input username")
         return;
     if(msg === "")
-        return;
+        alert("input message")
+        return;*/
+    console.log(user);
+    console.log(msg);
     socket.emit("privateMsg", [user, msg]);
     //$("#receiver").val("");
     $("msg").val("");
@@ -136,6 +143,7 @@ function createNewRoom_withPwd() {
     }
     let pwd = prompt("Set your password:");
     if(pwd === "") {
+        alert("input a password")
         return;
     }
     socket.emit("addRoom_withPwd", [message, pwd]);
@@ -147,6 +155,7 @@ document.getElementById("newRoom_btn_withPwd").addEventListener("click", createN
 function kick() {
     let who_kicked = $("#kick").val();
     if(who_kicked === "") {
+        alert("input user you want to kick out")
         return;
     }
     socket.emit("kick", who_kicked);
@@ -156,6 +165,7 @@ function kick() {
 function ban() {
     let who_banned = $("#ban").val();
     if(who_banned === "") {
+        alert("input user you want to ban")
         return;
     }
     socket.emit("ban", who_banned);

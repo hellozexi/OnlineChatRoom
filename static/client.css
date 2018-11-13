@@ -14,3 +14,6 @@
     border-right: 1px solid Grey;
     line-height: 2em;
 }
+#kick_ban {
+    display: none;
+}

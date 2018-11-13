@@ -9,6 +9,7 @@ import * as path from 'path';
 import router from '../router/router';
 import {User, Message} from '../model'
 import {ChatManager} from "./chatmanager";
+import {normalizeSlashes} from "ts-node";
 
 
 export class ChatServer {
@@ -50,20 +51,20 @@ export class ChatServer {
                 socket.join(user.roomname);
                 this.io.sockets.to(user.roomname).emit('public_msg_to_client', user.name + ":" + message);
             });
-
             socket.on("privateMsg", (message : any) =>{
-                //console.log("privateMsg:" + message[0]+ "::::"+ message[1]);
+                console.log("privateMsg:" + message[0]+ "::::"+ message[1]);
                 let receiver = this.chat.getUserByName(message[0]);
-                let sender = this.chat.getUserByName(socket.id);
+                let sender = this.chat.getUserByID(socket.id);
                 socket.to(receiver.socketId).emit("private_msg_to_client", "private::" + sender.name + ":" + message[1]);
                 //console.log("id needed:", user.socketId);
             });
 
             socket.on('addUser',(username : string) => {
-                console.log(socket.id);
                 let user = new User(username, socket.id);
+                if(user === undefined) {
+                    socket.emit("system", "no user");
+                }
                 this.chat.login(user);
-                console.log("welcome: " + username);
                 socket.join(user.roomname);
                 // the event will only be broadcast to clients that have joined the given room
                 // (the socket itself being *excluded*).
@@ -71,58 +72,71 @@ export class ChatServer {
                 // the event will only be broadcast to clients that have joined the given room
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
-                console.log("Which room:" + user.roomname);
-                this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-                //socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
+                this.io.to("public hall").emit('currentUsers', this.chat.usersInRoom("public hall"));
                 socket.emit('updateRooms', this.chat.rooms);
                 socket.emit("updatePrivateRooms", this.chat.privateRooms);
+                socket.emit("currentRoom", "public hall")
             });
             socket.on("kick", (who_kick : string) => {
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_kick);
+                console.log("admin" + admin.name);
+                console.log("out" + user.name);
+                if(user === undefined || admin === undefined || user === null || admin === null) {
+                    socket.emit("system", "no user");
+                }
+                if(admin === user) {
+                    socket.emit("system", "You can't do that");
+                    return;
+                }
+                //console.log("kick:" + who_kick);
+                if(admin !== null && user !== null && user !== undefined && admin !== undefined){
+                    if(this.chat.kickUserOut(admin, user, admin.roomname)) {
+                        this.io.to(admin.roomname).emit("currentUsers", this.chat.usersInRoom(admin.roomname));
+                        socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom(user.roomname));
+                        socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
+                        socket.to(user.socketId).emit("currentRoom", user.roomname);
+                }
+                else {
+                    socket.emit("system", "You can't do that");
+                }
+
+            }});
+            socket.on("ban", (who_ban : string) => {
+                console.log("ban:"+  who_ban);
+                let admin = this.chat.getUserByID(socket.id);
+                let user = this.chat.getUserByName(who_ban);
                 if(admin === user || admin.roomname == "public hall") {
                     socket.emit("kick_failed", "You can't do that");
                 }
-                //console.log("kick:" + who_kick);
-                if(this.chat.kickUserOut(admin, user, admin.roomname)) {
+                if(this.chat.banUser(admin, user, user.roomname)) {
                     this.io.to(admin.roomname).emit("currentUsers", this.chat.usersInRoom(admin.roomname));
-                    socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom(user.roomname));
-                    socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
-
-                } else {
-                    socket.emit("kick_failed", "You can't do that");
-                }
-
-            })
-            socket.on("ban", (who_ban : string) => {
-                let admin = this.chat.getUserByID(socket.id);
-                let user = this.chat.getUserByName(who_ban);
-                if(!this.chat.banUser(admin, user, user.roomname)) {
-                    socket.emit("ban_failed");
-                } else {
-                    this.io.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(admin.roomname));
                     socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom("public hall"));
                     socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
+
+                } else {
+                    socket.emit("ban_failed");
                 }
             })
             socket.on('switchRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
                 console.log("oldRoom:" + user.roomname);
                 let oldroom = user.roomname;
-                //socket.leave(oldroom);
+                socket.leave(oldroom);
                 // if successfully update data
                 if (this.chat.switchRoom(user, roomname)) {
                     console.log("newRoom" + user.roomname);
                     socket.join(user.roomname);
                     //socket.join(oldroom);
                     socket.broadcast.to(user.roomname).emit("userIn", user.name);
-                    //socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
+                    socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
 
                     socket.broadcast.to(oldroom).emit("userOut", user.name);
                     socket.broadcast.to(oldroom).emit("currentUsers", this.chat.usersInRoom(oldroom));
 
                     this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
                     //socket.emit("currentUsers", this.chat.usersInRoom(user.roomname));
+                    socket.emit("currentRoom", user.roomname);
                 }
                 else {
                     socket.emit('system', 'room name invalid');
@@ -132,12 +146,14 @@ export class ChatServer {
             socket.on("switchRoom_withPwd", (response : any) => {
                 let user = this.chat.getUserByID(socket.id);
                 let oldroom = user.roomname;
+                socket.leave(oldroom);
                 if(this.chat.switchPrivateRoom(user, response[0], response[1])) {
+                    console.log("newRoom_pwd" + user.roomname);
                     socket.join(user.roomname);
-                    //socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
+                    socket.broadcast.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(user.roomname));
                     socket.broadcast.to(oldroom).emit("currentUsers", this.chat.usersInRoom(oldroom));
                     this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-
+                    socket.emit("currentRoom", user.roomname);
                 } else {
                     socket.emit('system', 'room name invalid');
                 }
@@ -145,24 +161,34 @@ export class ChatServer {
             socket.on('addRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
                 //user is the admin of that room
-                this.chat.addRoom(user, roomname);
-                socket.emit("updateRooms", this.chat.rooms);
-                socket.broadcast.emit("updateRooms", this.chat.rooms);
+                if(this.chat.addRoom(user, roomname)) {
+                    socket.emit("updateRooms", this.chat.rooms);
+                    socket.broadcast.emit("updateRooms", this.chat.rooms);
+                } else {
+                    socket.emit('system', 'add room failed');
+                }
+
             });
             socket.on("addRoom_withPwd", (response : any) => {
                 let user = this.chat.getUserByID(socket.id);
-                this.chat.addPrivateRoom(user, response[0], response[1]);
-                console.log("receive" + response[0] + response[1]);
-                socket.emit("updatePrivateRooms", this.chat.privateRooms);
-                socket.broadcast.emit("updatePrivateRooms", this.chat.privateRooms);
+                if(this.chat.addPrivateRoom(user, response[0], response[1])) {
+                    console.log("receive" + response[0] + response[1]);
+                    socket.emit("updatePrivateRooms", this.chat.privateRooms);
+                    socket.broadcast.emit("updatePrivateRooms", this.chat.privateRooms);
+                } else {
+                    socket.emit("system", "add room failed");
+                }
+
             })
-            socket.on("disconnect", () => {
+            /*socket.on("disconnect", () => {
                 console.log(socket.id);
                 let user = this.chat.getUserByID(socket.id);
+                console.log('user from socket disconnect');
+                console.log(user);
                 //socket.leave();
                 this.chat.logout(user);
                 socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-            })
+            })*/
         });
     }
 

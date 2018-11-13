@@ -68,6 +68,8 @@ export class ChatManager {
     }
 
     logout(user: User) {
+        console.log('user from logout');
+        console.log(user);
         this.onlineUsers.delete(user);
         this.chatRooms.get(user.roomname).exit(user);
     }
