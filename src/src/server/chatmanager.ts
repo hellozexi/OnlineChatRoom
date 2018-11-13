@@ -59,6 +59,8 @@ export class ChatManager {
 
     // when a new user login, put him into the default room
     login(user: User): boolean {
+        if (user === undefined)
+            return false;
         // duplicate user name or socket id
         if (!this.onlineUsers.set(user))
             return false;
@@ -73,6 +75,8 @@ export class ChatManager {
     }
 
     addRoom(user: User, roomname: string): boolean {
+        if (user === undefined)
+            return false;
         // check if roomname has been used for chat room or private chat room
         if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
             return false;
@@ -82,6 +86,8 @@ export class ChatManager {
     }
 
     addPrivateRoom(user: User, roomname: string, password: string): boolean {
+        if (user === undefined)
+            return false;
         // check if roomname has been used for chat room or private chat room
         if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
             return false;
@@ -91,6 +97,8 @@ export class ChatManager {
     }
 
     switchRoom(user: User, roomname: string): boolean {
+        if (user === undefined)
+            return false;
         // check if the room name is correct
         if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
             return false;
