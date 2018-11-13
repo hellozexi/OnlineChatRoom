@@ -1,9 +1,14 @@
 const socket = (window as any).io();
 socket.on("updateRooms", addRoom);
+socket.on("updatePrivateRooms", addPrivateRoom)
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
 socket.on("public_msg_to_client", showMsg);
 socket.on("private_msg_to_client", showMsg);
+//failed message
+socket.on("kick_failed", (response : any)=> {
+    prompt(response);
+})
 //socket.on("userIn", userAction);
 //socket.on("userOut", userAction);
 /**
@@ -29,6 +34,28 @@ function addRoom(response : any) {
         });
         room.appendChild(in_btn);
         $("#rooms").append(room);
+    }
+}
+function addPrivateRoom(response : any) {
+    console.log(response);
+    $("#rooms_private").empty();
+    for(let key in response) {
+        console.log(key);
+        let room = document.createElement("div");
+        let roomName = document.createElement("li");
+        roomName.innerText = key + "(private room)";
+        room.appendChild(roomName);
+        let in_btn = document.createElement("button");
+        in_btn.setAttribute("class", "btn btn-primary btn-sm");
+        in_btn.innerText = "Get in";
+        in_btn.setAttribute("id", key);
+        in_btn.addEventListener("click", (e : Event) => {
+            let pwd = prompt("enter the password:");
+            switchRoom_withPwd(key, pwd);
+            //console.log(key);
+        });
+        room.appendChild(in_btn);
+        $("#rooms_private").append(room);
     }
 }
 function showUsers(response : any) {
@@ -102,8 +129,21 @@ function createNewRoom(){
     $("#newRoom").val("");
     $("#kick_ban").show();
 }
+function createNewRoom_withPwd() {
+    let message = $("#newRoom").val();
+    if(message === ""){
+        return;
+    }
+    let pwd = prompt("Set your password:");
+    if(pwd === "") {
+        return;
+    }
+    socket.emit("addRoom_withPwd", [message, pwd]);
+    $("#newRoom").val("");
+    $("#kick_ban").show();
+}
 document.getElementById("newRoom_btn").addEventListener("click", createNewRoom);
-
+document.getElementById("newRoom_btn_withPwd").addEventListener("click", createNewRoom_withPwd);
 function kick() {
     let who_kicked = $("#kick").val();
     if(who_kicked === "") {
@@ -140,5 +180,10 @@ document.getElementById("msg_button").addEventListener("click", createNewMsg);
 
 function switchRoom(roomName : string) {
     socket.emit("switchRoom", roomName);
+    return;
+}
+
+function switchRoom_withPwd(roomName : string, pwd : string) {
+    socket.emit("switchRoom_withPwd", [roomName, pwd]);
     return;
 }
