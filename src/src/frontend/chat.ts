@@ -1,5 +1,6 @@
 const socket = (window as any).io();
 socket.on("updateRooms", addRoom);
+socket.on("updateRooms_creator", addRoom_creator)
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
 socket.on("public_msg_to_client", showMsg);
@@ -29,7 +30,29 @@ function addRoom(response : any) {
         });
         room.appendChild(in_btn);
         $("#rooms").append(room);
+        $("#kick").hide();
     }
+}
+function addRoom_creator(response : any) {
+    $("#rooms").empty();
+    for(let key in response) {
+        //console.log(key);
+        let room = document.createElement("div");
+        let roomName = document.createElement("li");
+        roomName.innerText = key;
+        room.appendChild(roomName);
+        let in_btn = document.createElement("button");
+        in_btn.setAttribute("class", "btn btn-primary btn-sm");
+        in_btn.innerText = "Get in";
+        in_btn.setAttribute("id", key);
+        in_btn.addEventListener("click", (e : Event) => {
+            switchRoom(key);
+            //console.log(key);
+        });
+        room.appendChild(in_btn);
+        $("#rooms").append(room);
+    }
+    $("#kick").show();
 }
 function showUsers(response : any) {
     console.log(response);
@@ -47,11 +70,6 @@ function showUsers(response : any) {
             let msg = prompt("What do you want to say?");
             sendPrivateMsg(response[i].name, msg);
         })*/
-        //kick if owner of room
-        /*let in_btn = document.createElement("button");
-        in_btn.setAttribute("class", "btn btn-primary btn-sm");
-        in_btn.innerText = "Get in";
-        room.appendChild(in_btn);*/
         //user.appendChild(private_btn);
         $("#users").append(user);
     }

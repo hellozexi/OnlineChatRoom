@@ -113,6 +113,7 @@ export class ChatServer {
 
             socket.on('addRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
+                //user is the admin of that room
                 this.chat.addRoom(user, roomname);
                 socket.emit("updateRooms", this.chat.rooms);
                 socket.broadcast.emit("updateRooms", this.chat.rooms);
