@@ -76,7 +76,19 @@ export class ChatServer {
                 //socket.emit('currentUsers', this.chat.usersInRoom(user.roomname));
                 socket.emit('updateRooms', this.chat.rooms);
             });
+            socket.on("kick", (who_kick : string) => {
+                let admin = this.chat.getUserByID(socket.id);
+                let user = this.chat.getUserByName(who_kick);
+                //console.log("kick:" + who_kick);
+                if(!this.chat.kickUserOut(admin, user, user.roomname)) {
+                    socket.emit("kick_failed");
+                } else {
+                    this.io.to(user.roomname).emit("currentUsers", this.chat.usersInRoom(admin.roomname));
+                    socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom("public hall"));
+                    socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
+                }
 
+            })
             socket.on('switchRoom', (roomname: string) => {
                 let user = this.chat.getUserByID(socket.id);
                 console.log("oldRoom:" + user.roomname);

@@ -1,6 +1,5 @@
 const socket = (window as any).io();
 socket.on("updateRooms", addRoom);
-socket.on("updateRooms_creator", addRoom_creator)
 socket.on("connect", connect);
 socket.on("currentUsers", showUsers);
 socket.on("public_msg_to_client", showMsg);
@@ -30,29 +29,7 @@ function addRoom(response : any) {
         });
         room.appendChild(in_btn);
         $("#rooms").append(room);
-        $("#kick").hide();
     }
-}
-function addRoom_creator(response : any) {
-    $("#rooms").empty();
-    for(let key in response) {
-        //console.log(key);
-        let room = document.createElement("div");
-        let roomName = document.createElement("li");
-        roomName.innerText = key;
-        room.appendChild(roomName);
-        let in_btn = document.createElement("button");
-        in_btn.setAttribute("class", "btn btn-primary btn-sm");
-        in_btn.innerText = "Get in";
-        in_btn.setAttribute("id", key);
-        in_btn.addEventListener("click", (e : Event) => {
-            switchRoom(key);
-            //console.log(key);
-        });
-        room.appendChild(in_btn);
-        $("#rooms").append(room);
-    }
-    $("#kick").show();
 }
 function showUsers(response : any) {
     console.log(response);
@@ -123,8 +100,31 @@ function createNewRoom(){
     socket.emit("addRoom", message);
 
     $("#newRoom").val("");
+    $("#kick_ban").show();
 }
 document.getElementById("newRoom_btn").addEventListener("click", createNewRoom);
+
+function kick() {
+    let who_kicked = $("#kick").val();
+    if(who_kicked === "") {
+        return;
+    }
+    socket.emit("kick", who_kicked);
+    $("#kick").val("");
+}
+
+function ban() {
+    let who_banned = $("#ban").val();
+    if(who_banned === "") {
+        return;
+    }
+    socket.emit("ban", who_banned);
+    $("#ban").val("");
+}
+
+document.getElementById("kick_btn").addEventListener("click", kick);
+document.getElementById("ban_btn").addEventListener("click", ban);
+
 
 //create new message, it can show on the webpage
 function createNewMsg() {
