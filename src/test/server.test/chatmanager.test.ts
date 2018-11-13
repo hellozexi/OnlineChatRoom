@@ -18,9 +18,13 @@ describe('Test the ChatManager', () => {
     });
 
     test('tell if user exist', () => {
+        expect(manager.hasUserId(user.socketId)).toBeFalsy();
+        expect(manager.hasUserName(user.name)).toBeFalsy();
         manager.login(user);
         expect(manager.hasUserId(user.socketId)).toBeTruthy();
+        expect(manager.hasUserName(user.name)).toBeTruthy();
         expect(manager.hasUserId('fake')).toBeFalsy();
+        expect(manager.hasUserName('fake name')).toBeFalsy();
     });
 
     test('test user logout', () => {
@@ -31,9 +35,10 @@ describe('Test the ChatManager', () => {
 
         manager.logout(user);
         expect(manager.hasUserId(user.socketId)).toBeFalsy();
+        expect(manager.hasUserName(user.name)).toBeFalsy();
     });
 
-    test('test add room', () => {
+    test('test create room', () => {
         manager.addRoom(user, 'room');
         let room = manager.rooms['room'];
         expect(room.name).toEqual('room');
@@ -58,21 +63,38 @@ describe('Test the ChatManager', () => {
         expect(manager.rooms['public hall'].users).toHaveLength(0);
     });
 
-    test('test switch room', () => {
-        manager.login(user);
-        manager.addRoom(user, 'room');
+    test('test display users', () => {
+        let jessy = new User('jessy', '1231224');
+        let ben = new User('ben', '13432532');
+        let fray = new User('fray', '2149730742');
 
-        expect(user.roomname).toEqual('public hall');
-        expect(manager.rooms['public hall'].users).toContain(user);
-        expect(manager.rooms['room'].users).toHaveLength(0);
+        expect(manager.usersInRoom('public hall')).toHaveLength(0);
+        expect(manager.login(user)).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toContain(user);
 
-        expect(manager.switchRoom(user, 'room')).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toHaveLength(1);
+        expect(manager.login(jessy)).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toContain(user);
+        expect(manager.usersInRoom('public hall')).toContain(jessy);
 
-        // user's room name changed
-        expect(user.roomname).toEqual('room');
-        // new room contains user
-        expect(manager.rooms['room'].users).toContain(user);
-        // old room doesn't contain user
-        expect(manager.rooms['public hall'].users).toHaveLength(0);
+        expect(manager.usersInRoom('public hall')).toHaveLength(2);
+        expect(manager.login(ben)).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toContain(user);
+        expect(manager.usersInRoom('public hall')).toContain(jessy);
+        expect(manager.usersInRoom('public hall')).toContain(ben);
+
+        expect(manager.usersInRoom('public hall')).toHaveLength(3);
+        expect(manager.login(fray)).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toContain(user);
+        expect(manager.usersInRoom('public hall')).toContain(jessy);
+        expect(manager.usersInRoom('public hall')).toContain(ben);
+        expect(manager.usersInRoom('public hall')).toContain(fray);
+
+        expect(manager.usersInRoom('public hall')).toHaveLength(4);
+        manager.logout(fray);
+        expect(manager.usersInRoom('public hall')).toContain(user);
+        expect(manager.usersInRoom('public hall')).toContain(jessy);
+        expect(manager.usersInRoom('public hall')).toContain(ben);
+        expect(manager.usersInRoom('public hall')).toHaveLength(3);
     });
 });

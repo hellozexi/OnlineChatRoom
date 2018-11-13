@@ -42,10 +42,12 @@ export class ChatManager {
     }
 
     // when a new user login, put him into the default room
-    login(user: User) {
-        this.onlineUsers.set(user);
+    login(user: User): boolean {
+        if (!this.onlineUsers.set(user))
+            return false;
         this.chatRooms.get('public hall').join(user);
         user.roomname = 'public hall';
+        return true
     }
 
     logout(user: User) {
