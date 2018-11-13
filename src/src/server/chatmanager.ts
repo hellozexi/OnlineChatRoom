@@ -13,7 +13,7 @@ export class ChatManager {
         this.privateChatRooms = new Map<string, PrivateChatRoom>();
         this.onlineUsers = new UserManager();
 
-        this.chatRooms.set('public hall', new ChatRoom('public hall', null));
+        this.chatRooms.set('public hall', new ChatRoom('public hall'));
     }
 
     get rooms(): {[key: string]: ChatRoom; } {
@@ -59,6 +59,8 @@ export class ChatManager {
 
     // when a new user login, put him into the default room
     login(user: User): boolean {
+        if (user === undefined)
+            return false;
         // duplicate user name or socket id
         if (!this.onlineUsers.set(user))
             return false;
@@ -75,6 +77,8 @@ export class ChatManager {
     }
 
     addRoom(user: User, roomname: string): boolean {
+        if (user === undefined)
+            return false;
         // check if roomname has been used for chat room or private chat room
         if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
             return false;
@@ -84,6 +88,8 @@ export class ChatManager {
     }
 
     addPrivateRoom(user: User, roomname: string, password: string): boolean {
+        if (user === undefined)
+            return false;
         // check if roomname has been used for chat room or private chat room
         if (this.chatRooms.has(roomname) || this.privateChatRooms.has(roomname)) {
             return false;
@@ -93,6 +99,8 @@ export class ChatManager {
     }
 
     switchRoom(user: User, roomname: string): boolean {
+        if (user === undefined)
+            return false;
         // check if the room name is correct
         if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
             return false;
@@ -100,7 +108,11 @@ export class ChatManager {
         // if this user is banned
         if (!this.chatRooms.get(roomname).join(user))
             return false;
-        this.chatRooms.get(user.roomname).exit(user);
+        // exit the original room
+        if (this.chatRooms.has(user.roomname))
+            this.chatRooms.get(user.roomname).exit(user);
+        if (this.privateChatRooms.has(user.roomname))
+            this.privateChatRooms.get(user.roomname).exit(user);
         user.roomname = roomname;
         return true;
     }
@@ -116,7 +128,11 @@ export class ChatManager {
         // if this user is banned
         if (!this.privateChatRooms.get(roomname).join(user))
             return false;
-        this.chatRooms.get(user.roomname).exit(user);
+        // exit the original room
+        if (this.chatRooms.has(user.roomname))
+            this.chatRooms.get(user.roomname).exit(user);
+        if (this.privateChatRooms.has(user.roomname))
+            this.privateChatRooms.get(user.roomname).exit(user);
         user.roomname = roomname;
         return true
     }
@@ -135,12 +151,14 @@ export class ChatManager {
     kickUserOut(admin: User, out: User, roomname: string): boolean {
         if (this.chatRooms.has(roomname)) {
             // admin is not the admin of the chat room
-            if (this.chatRooms.get(roomname).admin.socketId !== admin.socketId)
+            let chatroom = this.chatRooms.get(roomname);
+            if (chatroom.admin === undefined || chatroom.admin.socketId !== admin.socketId)
                 return false;
             return this.switchRoom(out, 'public hall');
         }
         if (this.privateChatRooms.has(roomname)) {
             // admin is not the admin of the chat room
+            // privateChatRoom must have an admin
             if (this.privateChatRooms.get(roomname).admin.socketId !== admin.socketId)
                 return false;
             return this.switchRoom(out, 'public hall');

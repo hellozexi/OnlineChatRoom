@@ -6,7 +6,7 @@ export class ChatRoom {
     private readonly _users: Map<string, User>;
     private readonly _ban_list: Set<string>;
 
-    constructor(name: string, admin: User) {
+    constructor(name: string, admin: User=undefined) {
         this._name = name;
         this._admin = admin;
         this._users = new Map<string, User>();
@@ -30,7 +30,7 @@ export class ChatRoom {
     }
 
     banUser(admin: User, banned: User): boolean {
-        if (this.admin.socketId !== admin.socketId)
+        if (this.admin === undefined || this.admin.socketId !== admin.socketId)
             return false;
         this._ban_list.add(banned.socketId);
         return true;

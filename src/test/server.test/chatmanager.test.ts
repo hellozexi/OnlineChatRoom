@@ -230,6 +230,36 @@ describe('Test admin privilege', () => {
         expect(manager.usersInRoom('room')).toHaveLength(0);
     });
 
+    test('test ban user not admin', () => {
+        expect(manager.login(user)).toBeTruthy();
+        expect(manager.login(fray)).toBeTruthy();
+        expect(manager.addRoom(user, 'room')).toBeTruthy();
+        // before ban, fray can get in room
+        expect(manager.switchRoom(fray, 'room')).toBeTruthy();
+        // ban fray from public hall should failed
+        expect(manager.banUser(user, fray,'public hall')).toBeFalsy();
+        // fray could enter public hall
+        expect(manager.switchRoom(fray, 'public hall')).toBeTruthy();
+        expect(manager.usersInRoom('public hall')).toContain(fray);
+        expect(manager.usersInRoom('room')).toHaveLength(0);
+    });
+
+    test('test ban user from public hall', () => {
+        expect(manager.login(user)).toBeTruthy();
+        expect(manager.login(fray)).toBeTruthy();
+        expect(manager.addRoom(user, 'room')).toBeTruthy();
+        // before ban, fray can get in room
+        expect(manager.switchRoom(fray, 'room')).toBeTruthy();
+        expect(manager.switchRoom(fray, 'public hall')).toBeTruthy();
+        // ban fray
+        expect(manager.banUser(fray, user, 'room')).toBeFalsy();
+        // fray could not enter room
+        expect(manager.switchRoom(user, 'room')).toBeTruthy();
+        expect(manager.usersInRoom('room')).toContain(user);
+        expect(manager.usersInRoom('room')).toHaveLength(1);
+        expect(manager.usersInRoom('public hall')).toHaveLength(1);
+    });
+
     test('test kick user out', () => {
         expect(manager.login(user)).toBeTruthy();
         expect(manager.login(fray)).toBeTruthy();
@@ -241,5 +271,11 @@ describe('Test admin privilege', () => {
         expect(manager.usersInRoom('public hall')).toContain(fray);
         expect(manager.usersInRoom('room')).toEqual([]);
         expect(manager.usersInRoom('room')).toHaveLength(0);
+    });
+
+    test('test kick user undefined', () => {
+        expect(manager.login(user)).toBeTruthy();
+        expect(manager.addRoom(user, 'room')).toBeTruthy();
+        expect(manager.kickUserOut(user, undefined, 'room')).toBeFalsy();
     });
 });
