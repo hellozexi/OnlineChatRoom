@@ -35,7 +35,10 @@ export class ChatManager {
     usersInRoom(roomname: string): User[] {
         if (this.chatRooms.has(roomname))
             return this.chatRooms.get(roomname).users;
-        return this.privateChatRooms.get(roomname).users;
+        if (this.privateChatRooms.has(roomname))
+            return this.privateChatRooms.get(roomname).users;
+        // if roomname not exist, return undefined;
+        return undefined;
     }
 
     getUserByID(socketId: string): User {
