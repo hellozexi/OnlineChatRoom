@@ -97,4 +97,21 @@ describe('Test the ChatManager', () => {
         expect(manager.usersInRoom('public hall')).toContain(ben);
         expect(manager.usersInRoom('public hall')).toHaveLength(3);
     });
+
+    test('test ban user', () => {
+        let fray = new User('fray', '2149730742');
+        expect(manager.login(user)).toBeTruthy();
+        expect(manager.login(fray)).toBeTruthy();
+        expect(manager.addRoom(user, 'room')).toBeTruthy();
+        // before ban, fray can get in room
+        expect(manager.switchRoom(fray, 'room')).toBeTruthy();
+        expect(manager.switchRoom(fray, 'public hall')).toBeTruthy();
+        // ban fray
+        expect(manager.banUser(user, fray, 'room')).toBeTruthy();
+        // fray could not enter room
+        expect(manager.switchRoom(fray, 'room')).toBeFalsy();
+        expect(manager.usersInRoom('public hall')).toContain(fray);
+        expect(manager.usersInRoom('room')).toEqual([]);
+        expect(manager.usersInRoom('room')).toHaveLength(0);
+    });
 });

@@ -41,8 +41,11 @@ export class ChatManager {
         return this.onlineUsers.hasName(username);
     }
 
+
+
     // when a new user login, put him into the default room
     login(user: User): boolean {
+        // duplicate user name or socket id
         if (!this.onlineUsers.set(user))
             return false;
         this.chatRooms.get('public hall').join(user);
@@ -55,22 +58,32 @@ export class ChatManager {
         this.chatRooms.get(user.roomname).exit(user);
     }
 
-    switchRoom(user: User, roomname: string): boolean {
-        // check if the room name is correct
-        if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
-            return false;
-        }
-        this.chatRooms.get(user.roomname).exit(user);
-        this.chatRooms.get(roomname).join(user);
-        user.roomname = roomname;
-        return true;
-    }
-
     addRoom(user: User, roomname: string): boolean {
         if (this.chatRooms.has(roomname)) {
             return false;
         }
         this.chatRooms.set(roomname, new ChatRoom(roomname, user));
         return true;
+    }
+
+    switchRoom(user: User, roomname: string): boolean {
+        // check if the room name is correct
+        if ((user.roomname == roomname) || !this.chatRooms.has(roomname)) {
+            return false;
+        }
+        // this user is banned
+        if (!this.chatRooms.get(roomname).join(user))
+            return false;
+        this.chatRooms.get(user.roomname).exit(user);
+        user.roomname = roomname;
+        return true;
+    }
+
+    banUser(admin: User, banned: User, roomname: string): boolean {
+        // room does not exist
+        if (!this.chatRooms.has(roomname))
+            return false;
+        // return if it could be banned
+        return this.chatRooms.get(roomname).banUser(admin, banned);
     }
 }

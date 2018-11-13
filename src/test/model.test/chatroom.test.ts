@@ -33,6 +33,18 @@ describe('Test the ChatRoom', () => {
         expect(chatroom.users).toContain(user);
     });
 
+    test('test ban user', () => {
+        chatroom = new ChatRoom('public hall', user);
+        let jack = new User('jack', 'socket id');
+
+        expect(chatroom.join(jack)).toBeTruthy();
+        expect(chatroom.users).toContain(jack);
+
+        chatroom.exit(jack);
+        expect(chatroom.banUser(user, jack)).toBeTruthy();
+        expect(chatroom.join(jack)).toBeFalsy();
+    });
+
     test('test exit chat room', () => {
         chatroom.join(user);
         expect(chatroom.users).toContain(user);
