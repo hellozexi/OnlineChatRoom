@@ -86,4 +86,15 @@ export class ChatManager {
         // return if it could be banned
         return this.chatRooms.get(roomname).banUser(admin, banned);
     }
+
+    kickUserOut(admin: User, out: User, roomname: string): boolean {
+        // room does not exist
+        if (!this.chatRooms.has(roomname))
+            return false;
+        // admin is not the admin of the chat room
+        if (this.chatRooms.get(roomname).admin.socketId !== admin.socketId)
+            return false;
+
+        return this.switchRoom(out, 'public hall');
+    }
 }
