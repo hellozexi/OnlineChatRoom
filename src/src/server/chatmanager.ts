@@ -13,7 +13,7 @@ export class ChatManager {
         this.privateChatRooms = new Map<string, PrivateChatRoom>();
         this.onlineUsers = new UserManager();
 
-        this.chatRooms.set('public hall', new ChatRoom('public hall', null));
+        this.chatRooms.set('public hall', new ChatRoom('public hall'));
     }
 
     get rooms(): {[key: string]: ChatRoom; } {
@@ -141,12 +141,14 @@ export class ChatManager {
     kickUserOut(admin: User, out: User, roomname: string): boolean {
         if (this.chatRooms.has(roomname)) {
             // admin is not the admin of the chat room
-            if (this.chatRooms.get(roomname).admin.socketId !== admin.socketId)
+            let chatroom = this.chatRooms.get(roomname);
+            if (chatroom.admin === undefined || chatroom.admin.socketId !== admin.socketId)
                 return false;
             return this.switchRoom(out, 'public hall');
         }
         if (this.privateChatRooms.has(roomname)) {
             // admin is not the admin of the chat room
+            // privateChatRoom must have an admin
             if (this.privateChatRooms.get(roomname).admin.socketId !== admin.socketId)
                 return false;
             return this.switchRoom(out, 'public hall');
