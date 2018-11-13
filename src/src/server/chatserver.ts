@@ -9,7 +9,6 @@ import * as path from 'path';
 import router from '../router/router';
 import {User, Message} from '../model'
 import {ChatManager} from "./chatmanager";
-import {AddressInfo} from "net";
 
 
 export class ChatServer {
@@ -29,15 +28,6 @@ export class ChatServer {
     start() {
         // this._app.listen(this.port, callback);
         this.server.listen(this.port);
-    }
-
-    test_start(): string | AddressInfo {
-        return this.server.listen().address();
-    }
-
-    close() {
-        this.io.close();
-        this.server.close();
     }
 
     get express_app(): Application {
@@ -67,9 +57,10 @@ export class ChatServer {
                 let sender = this.chat.getUserByName(socket.id);
                 socket.to(receiver.socketId).emit("private_msg_to_client", "private::" + sender.name + ":" + message[1]);
                 //console.log("id needed:", user.socketId);
-            })
+            });
+
             socket.on('addUser',(username : string) => {
-                console.log(socket.id)
+                console.log(socket.id);
                 let user = new User(username, socket.id);
                 this.chat.login(user);
                 console.log("welcome: " + username);
