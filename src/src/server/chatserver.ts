@@ -208,15 +208,15 @@ export class ChatServer {
                 }
 
             })
-            /*socket.on("disconnect", () => {
+            socket.on("disconnect", () => {
                 console.log(socket.id);
                 let user = this.chat.getUserByID(socket.id);
                 console.log('user from socket disconnect');
                 console.log(user);
-                //socket.leave();
+                socket.leave(user.roomname);
                 this.chat.logout(user);
                 socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
-            })*/
+            })
         });
     }
 
