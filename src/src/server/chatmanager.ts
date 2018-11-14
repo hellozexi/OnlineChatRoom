@@ -73,7 +73,9 @@ export class ChatManager {
         // console.log('user from logout');
         // console.log(user);
         this.onlineUsers.delete(user);
-        this.chatRooms.get(user.roomname).exit(user);
+        let room = this.chatRooms.get(user.roomname);
+        if (room !== undefined)
+            room.exit(user);
     }
 
     addRoom(user: User, roomname: string): boolean {
