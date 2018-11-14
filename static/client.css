@@ -37,11 +37,9 @@
 #private button{
     position: relative;
     float: right;
-    width: 71%;
+    width: 70%;
 }
-#inside{
-    color: DarkCyan;
-}
+
 #chatlog{
     height: 400px;
     overflow-y: scroll;
