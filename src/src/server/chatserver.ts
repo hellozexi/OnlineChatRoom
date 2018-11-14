@@ -165,7 +165,7 @@ export class ChatServer {
                     socket.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 }
                 else {
-                    socket.emit('system', 'room name invalid');
+                    socket.emit('system', 'You can not do that');
                 }
 
             });
@@ -183,7 +183,7 @@ export class ChatServer {
                     socket.emit('updateRooms', [this.chat.rooms, user.roomname]);
                     socket.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 } else {
-                    socket.emit('system', 'room name invalid');
+                    socket.emit('system', 'you can not do that');
                 }
             })
             socket.on('addRoom', (roomname: string) => {
