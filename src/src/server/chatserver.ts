@@ -54,12 +54,19 @@ export class ChatServer {
             socket.on("privateMsg", (message : any) =>{
                 let receiver = this.chat.getUserByName(message[0]);
                 let sender = this.chat.getUserByID(socket.id);
-                if(receiver === sender) {
-                    socket.emit("system", "user can't send message to himself");
-                    return;
+                let users = this.chat.usersInRoom(sender.roomname);
+                for(let i in users) {
+                    if (users[i].name === message[0]) {
+                        if(receiver === sender) {
+                            socket.emit("system", "user can't send message to himself");
+                            return;
+                        }
+                        socket.to(receiver.socketId).emit("private_msg_to_client", "private(from)" + sender.name + ":" + message[1]);
+                        socket.emit("private_msg_to_client", "private(to)" + receiver.name + ":" + message[1]);
+                        return;
+                    }
                 }
-                socket.to(receiver.socketId).emit("private_msg_to_client", "private(from)" + sender.name + ":" + message[1]);
-                socket.emit("private_msg_to_client", "private(to)" + receiver.name + ":" + message[1])
+                socket.emit("system", "user not exist in this room")
                 //console.log("id needed:", user.socketId);
             });
 
@@ -81,8 +88,8 @@ export class ChatServer {
                 // (the socket itself being *excluded*).
                 // broadcast current users in the room
                 this.io.to("public hall").emit('currentUsers', this.chat.usersInRoom("public hall"));
-                socket.emit('updateRooms', this.chat.rooms);
-                socket.emit("updatePrivateRooms", this.chat.privateRooms);
+                socket.emit('updateRooms', [this.chat.rooms, user.roomname]);
+                socket.emit('updatePrivateRooms', [this.chat.privateRooms, user.roomname]);
                 socket.emit("currentRoom", "public hall")
             });
             socket.on("kick", (who_kick : string) => {
@@ -107,6 +114,8 @@ export class ChatServer {
                         socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom(user.roomname));
                         socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
                         socket.to(user.socketId).emit("currentRoom", user.roomname);
+                        socket.to(user.socketId).emit('updateRooms', [this.chat.rooms, user.roomname]);
+                        socket.to(user.socketId).emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 }
                 else {
                     socket.emit("system", "You can't do that");
@@ -118,7 +127,7 @@ export class ChatServer {
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_ban);
                 if(!this.chat.hasUserName(who_ban)) {
-                    socket.emit("system", "no user you typed in this room.");
+                    socket.emit("system", "no user you typed exists.");
                     return;
                 }
                 if(admin === user || admin.roomname == "public hall") {
@@ -152,6 +161,8 @@ export class ChatServer {
                     this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
                     //socket.emit("currentUsers", this.chat.usersInRoom(user.roomname));
                     socket.emit("currentRoom", user.roomname);
+                    socket.emit('updateRooms', [this.chat.rooms, user.roomname]);
+                    socket.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 }
                 else {
                     socket.emit('system', 'room name invalid');
@@ -169,6 +180,8 @@ export class ChatServer {
                     socket.broadcast.to(oldroom).emit("currentUsers", this.chat.usersInRoom(oldroom));
                     this.io.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
                     socket.emit("currentRoom", user.roomname);
+                    socket.emit('updateRooms', [this.chat.rooms, user.roomname]);
+                    socket.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 } else {
                     socket.emit('system', 'room name invalid');
                 }
@@ -177,8 +190,8 @@ export class ChatServer {
                 let user = this.chat.getUserByID(socket.id);
                 //user is the admin of that room
                 if(this.chat.addRoom(user, roomname)) {
-                    socket.emit("updateRooms", this.chat.rooms);
-                    socket.broadcast.emit("updateRooms", this.chat.rooms);
+                    socket.emit("updateRooms", [this.chat.rooms, user.roomname]);
+                    socket.broadcast.emit("updateRooms", [this.chat.rooms, user.roomname]);
                 } else {
                     socket.emit('system', 'add room failed');
                 }
@@ -188,8 +201,8 @@ export class ChatServer {
                 let user = this.chat.getUserByID(socket.id);
                 if(this.chat.addPrivateRoom(user, response[0], response[1])) {
                     console.log("receive" + response[0] + response[1]);
-                    socket.emit("updatePrivateRooms", this.chat.privateRooms);
-                    socket.broadcast.emit("updatePrivateRooms", this.chat.privateRooms);
+                    socket.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
+                    socket.broadcast.emit("updatePrivateRooms", [this.chat.privateRooms, user.roomname]);
                 } else {
                     socket.emit("system", "add room failed");
                 }

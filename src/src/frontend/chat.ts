@@ -21,8 +21,11 @@ socket.on("system", (response : any) => {
 function addRoom(response : any) {
    //console.log(response);
     $("#rooms").empty();
-    for(let key in response) {
+    for(let key in response[0]) {
         //console.log(key);
+        if(key === response[1]) {
+            continue;
+        }
         let room = document.createElement("div");
         let roomName = document.createElement("strong");
         roomName.innerText = key;
@@ -43,8 +46,11 @@ function addRoom(response : any) {
 function addPrivateRoom(response : any) {
     console.log(response);
     $("#rooms_private").empty();
-    for(let key in response) {
+    for(let key in response[0]) {
         console.log(key);
+        if(key === response[1]) {
+            continue;
+        }
         let room = document.createElement("div");
         let roomName = document.createElement("strong");
         roomName.innerText = key + "(private room)";
