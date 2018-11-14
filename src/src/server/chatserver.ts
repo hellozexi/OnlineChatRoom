@@ -85,8 +85,10 @@ export class ChatServer {
             socket.on("kick", (who_kick : string) => {
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_kick);
-                if(!this.chat.hasUserName(user.name)) {
-                    socket.emit("system", "no user you typed in this room.")
+
+                if(!this.chat.hasUserName(who_kick)) {
+                    socket.emit("system", "no user you typed in this room.");
+                    return;
                 }
                 if(user === undefined || admin === undefined || user === null || admin === null) {
                     socket.emit("system", "no user");
@@ -112,6 +114,10 @@ export class ChatServer {
                 console.log("ban:"+  who_ban);
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_ban);
+                if(!this.chat.hasUserName(who_ban)) {
+                    socket.emit("system", "no user you typed in this room.");
+                    return;
+                }
                 if(admin === user || admin.roomname == "public hall") {
                     socket.emit("system", "You can't do that");
                 }
