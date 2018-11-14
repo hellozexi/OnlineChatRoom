@@ -52,11 +52,14 @@ export class ChatServer {
                 this.io.sockets.to(user.roomname).emit('public_msg_to_client', user.name + ":" + message);
             });
             socket.on("privateMsg", (message : any) =>{
-                console.log("privateMsg:" + message[0]+ "::::"+ message[1]);
                 let receiver = this.chat.getUserByName(message[0]);
                 let sender = this.chat.getUserByID(socket.id);
+                if(receiver === sender) {
+                    socket.emit("system", "user can't send message to himself");
+                    return;
+                }
                 socket.to(receiver.socketId).emit("private_msg_to_client", "private(from)" + sender.name + ":" + message[1]);
-                socket.to(sender.socketId).emit("private_msg_to_client", "private(to)" + receiver.name + ":" + message[1])
+                socket.emit("private_msg_to_client", "private(to)" + receiver.name + ":" + message[1])
                 //console.log("id needed:", user.socketId);
             });
 
