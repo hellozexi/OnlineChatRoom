@@ -22,7 +22,7 @@ Welcome to own online chat room.
 ```bash
 npm install
 tsc
-node dist/indext.js
+node dist/index.js
 ```
 ## Creative Portion
 
