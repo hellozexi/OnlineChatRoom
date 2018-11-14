@@ -21,16 +21,16 @@ Welcome to own online chat room.
 ## Deployment
 ```bash
 npm install
-tsc
-node dist/index.js
+npm start
 ```
 ## Creative Portion
 
 1. Used Typescript to finish this project
-2. All web api and server-side code are completely under unittest
+2. All server-side code are completely under unittest
 
 ## typescript unittest
 * you can run all unittests with command below, and remember the env requirement.
 ```bash
+npm run build
 npm test
 ```
