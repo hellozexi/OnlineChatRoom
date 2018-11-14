@@ -19,9 +19,6 @@ Welcome to own online chat room.
  5. Creator can input the name you want to kick, and user kicked will be temporarily kicked out of the room. They will be shown in the publc hall.
  6. User can send private message
  
-## Important
- Because the socket would disconnect randomly, we *do not handle* the socket disconnection which is *not mentioned* in the Rubic.
-
 ## Deployment
 ```bash
 npm install
