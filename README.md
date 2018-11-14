@@ -11,6 +11,7 @@ project URL:
 
 localhost:8080
 Welcome to own online chat room.
+ 
  1. When user visit this website first time. User should input your nickname.
  2. New user will be assigned to a public hall for the first time you enter. You can create room and talk to others.
  3. If user are the creator of the room. You have right to kick or ban other user.
