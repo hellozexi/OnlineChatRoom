@@ -213,7 +213,7 @@ export class ChatServer {
                 let user = this.chat.getUserByID(socket.id);
                 console.log('user from socket disconnect');
                 console.log(user);
-                socket.leave(user.roomname);
+                //socket.leave(user.roomname);
                 this.chat.logout(user);
                 socket.broadcast.to(user.roomname).emit('currentUsers', this.chat.usersInRoom(user.roomname));
             })
