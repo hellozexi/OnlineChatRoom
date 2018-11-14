@@ -24,8 +24,9 @@ function addRoom(response : any) {
     for(let key in response) {
         //console.log(key);
         let room = document.createElement("div");
-        let roomName = document.createElement("li");
+        let roomName = document.createElement("strong");
         roomName.innerText = key;
+        room.setAttribute("class", "d-flex justify-content-between align-items-center w-100");
         room.appendChild(roomName);
         let in_btn = document.createElement("button");
         in_btn.setAttribute("class", "btn btn-primary btn-sm");
@@ -45,8 +46,9 @@ function addPrivateRoom(response : any) {
     for(let key in response) {
         console.log(key);
         let room = document.createElement("div");
-        let roomName = document.createElement("li");
+        let roomName = document.createElement("strong");
         roomName.innerText = key + "(private room)";
+        room.setAttribute("class","d-flex justify-content-between align-items-center w-100");
         room.appendChild(roomName);
         let in_btn = document.createElement("button");
         in_btn.setAttribute("class", "btn btn-primary btn-sm");
@@ -67,9 +69,14 @@ function showUsers(response : any) {
     for(let i in response) {
         //console.log(response[user].name);
         let user = document.createElement("div");
-        let userName = document.createElement("li");
+        user.setAttribute("class", "media-body border-bottom border-gray");
+        let userSub = document.createElement("div");
+        userSub.setAttribute("class", "d-flex justify-content-between align-items-center w-100");
+        let userName = document.createElement("span");
+        userName.setAttribute("class", "d-block");
         userName.innerText = response[i].name;
-        user.appendChild(userName);
+        userSub.appendChild(userName);
+        user.appendChild(userSub);
         //private communication
        /* let private_btn = document.createElement("a");
         private_btn.innerText = "message";

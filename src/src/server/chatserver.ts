@@ -55,12 +55,17 @@ export class ChatServer {
                 console.log("privateMsg:" + message[0]+ "::::"+ message[1]);
                 let receiver = this.chat.getUserByName(message[0]);
                 let sender = this.chat.getUserByID(socket.id);
-                socket.to(receiver.socketId).emit("private_msg_to_client", "private::" + sender.name + ":" + message[1]);
+                socket.to(receiver.socketId).emit("private_msg_to_client", "private(from)" + sender.name + ":" + message[1]);
+                socket.to(sender.socketId).emit("private_msg_to_client", "private(to)" + receiver.name + ":" + message[1])
                 //console.log("id needed:", user.socketId);
             });
 
             socket.on('addUser',(username : string) => {
                 let user = new User(username, socket.id);
+                if(this.chat.hasUserName(username)) {
+                    socket.emit("system", "user already exists, refresh this tab and try again");
+                    return;
+                }
                 if(user === undefined) {
                     socket.emit("system", "no user");
                 }
@@ -80,8 +85,9 @@ export class ChatServer {
             socket.on("kick", (who_kick : string) => {
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_kick);
-                console.log("admin" + admin.name);
-                console.log("out" + user.name);
+                if(!this.chat.hasUserName(user.name)) {
+                    socket.emit("system", "no user you typed in this room.")
+                }
                 if(user === undefined || admin === undefined || user === null || admin === null) {
                     socket.emit("system", "no user");
                 }
@@ -107,15 +113,15 @@ export class ChatServer {
                 let admin = this.chat.getUserByID(socket.id);
                 let user = this.chat.getUserByName(who_ban);
                 if(admin === user || admin.roomname == "public hall") {
-                    socket.emit("kick_failed", "You can't do that");
+                    socket.emit("system", "You can't do that");
                 }
-                if(this.chat.banUser(admin, user, user.roomname)) {
+                if(this.chat.banUser(admin, user, admin.roomname)) {
                     this.io.to(admin.roomname).emit("currentUsers", this.chat.usersInRoom(admin.roomname));
-                    socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom("public hall"));
+                    socket.to(user.socketId).emit("currentUsers", this.chat.usersInRoom(user.roomname));
                     socket.emit("currentUsers", this.chat.usersInRoom(admin.roomname));
-
+                    socket.to(user.socketId).emit("currentRoom", user.roomname);
                 } else {
-                    socket.emit("ban_failed");
+                    socket.emit("system", "You can't do that");
                 }
             })
             socket.on('switchRoom', (roomname: string) => {

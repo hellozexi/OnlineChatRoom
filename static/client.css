@@ -1,19 +1,64 @@
-#lobby {
+
+#lobby{
     position: fixed;
     bottom: 0px;
-    width: 100%;
+    width: 60%;
     margin-bottom: 20px;
     padding: 30px;
 }
-#side {
-    float: left;
-    margin: 0 100px 0 0px;
+
+#lobby input{
+    width: 60%;
+    height: 30px;
+}
+
+#lobby button{
+    height: 34px;
+    background-color: DodgerBlue;
+    border: none;
+    color: White;
+}
+
+#side{
+    float: right;
+    margin: 0 100px;
+    margin-left: 0px;
     padding: 20px;
-    width: 400px;
+    width: 220px;
     height: 100%;
-    border-right: 1px solid Grey;
+    border-left: 1px solid Grey;
     line-height: 2em;
+}
+
+#private{
+    height: 110px;
+}
+
+#private button{
+    position: relative;
+    float: right;
+    width: 71%;
+}
+#inside{
+    color: DarkCyan;
+}
+#chatlog{
+    height: 400px;
+    overflow-y: scroll;
+    width: 100%;
+    margin-right: 0px;
 }
 #kick_ban {
     display: none;
+}
+#users {
+    height: 100px;
+    width : 100%;
+    overflow-y: scroll
+}
+#message {
+    width: 50%;
+}
+#private {
+    width: 50%;
 }
