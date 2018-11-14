@@ -21,6 +21,7 @@ Welcome to own online chat room.
 ## Deployment
 ```bash
 npm install
+tsc
 node dist/indext.js
 ```
 ## Creative Portion
